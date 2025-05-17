@@ -1,0 +1,37 @@
+spring:
+  r2dbc:
+    url: r2dbc:h2:mem:///~/stockutedb;MODE=PostgreSQL;
+    password: sa
+    username:
+  main:
+    web-application-type: reactive
+
+  liquibase:
+    change-log: classpath:/db/db.changelog.yaml
+    url: jdbc:h2:mem:~/stockutedb;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
+    password: sa
+    user:
+    enabled: true
+    drop-first: true
+  mongodb:
+    embedded:
+      version: 4.0.21
+
+springbootwebfluxjjwt:
+  password:
+    encoder:
+      iteration: '33'
+      secret: mysecret
+      keylength: '256'
+  jjwt:
+    expiration: '28800'
+    secret: ThisIsSecretForJWTHS512SignatureAlgorithmThatMUSTHave64ByteLength
+
+security:
+  allowed-origins: '*'
+org:
+  jobrunr:
+    background-job-server:
+      enabled: 'false'
+    dashboard:
+      enabled: 'false'

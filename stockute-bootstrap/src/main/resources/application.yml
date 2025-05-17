@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: stockute
+  profiles:
+      active: dev
+  liquibase:
+    change-log: classpath:/db/db.changelog.yaml
+    url: jdbc:postgresql://localhost:5432/stockutedb
+    user: postgres
+    password: admin
+    enabled: true
+    drop-first: true
+  server:
+    port: '8081'
+  main:
+    web-application-type: reactive
+  mvc:
+    format:
+      date: MM-dd-yyyy
+      date-time: MM-dd-yyyy HH:mm:ss
+      time: HH:mm:ss
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5432/stockutedb;
+    password: admin
+    username: postgres
