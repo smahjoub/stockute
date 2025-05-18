@@ -1,3 +1,5 @@
+server:
+  port: 8081
 spring:
   application:
     name: stockute
@@ -9,9 +11,7 @@ spring:
     user: postgres
     password: admin
     enabled: true
-    drop-first: true
-  server:
-    port: '8081'
+    drop-first: false
   main:
     web-application-type: reactive
   mvc:
@@ -20,6 +20,6 @@ spring:
       date-time: MM-dd-yyyy HH:mm:ss
       time: HH:mm:ss
   r2dbc:
-    url: r2dbc:postgresql://localhost:5432/stockutedb;
+    url: r2dbc:postgresql://localhost:5432/stockutedb
     password: admin
     username: postgres
