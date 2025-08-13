@@ -1,4 +1,4 @@
-package com.smahjoub.stockute.application.port.in;
+package com.smahjoub.stockute.application.port.portfolio.in;
 
 import com.smahjoub.stockute.domain.model.Portfolio;
 import reactor.core.publisher.Flux;

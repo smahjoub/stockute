@@ -7,9 +7,9 @@ spring:
       active: dev
   liquibase:
     change-log: classpath:/db/db.changelog.yaml
-    url: jdbc:postgresql://localhost:5432/stockutedb
-    user: postgres
-    password: admin
+    url: jdbc:postgresql://localhost:5432/stockute_db
+    user: admin
+    password: postgres
     enabled: true
     drop-first: false
   main:
@@ -20,6 +20,15 @@ spring:
       date-time: MM-dd-yyyy HH:mm:ss
       time: HH:mm:ss
   r2dbc:
-    url: r2dbc:postgresql://localhost:5432/stockutedb
-    password: admin
-    username: postgres
+    url: r2dbc:postgresql://localhost:5432/stockute_db
+    password: postgres
+    username: admin
+springbootwebfluxjjwt:
+  password:
+    encoder:
+      iteration: '33'
+      secret: mysecret
+      keylength: '256'
+  jjwt:
+    expiration: '148800'
+    secret: 123qs345678HGGTFFHUJNGTsecret123345678HGGTFFHUJNGTqsdqsdZEza

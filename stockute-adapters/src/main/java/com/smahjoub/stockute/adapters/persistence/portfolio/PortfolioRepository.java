@@ -1,4 +1,4 @@
-package com.smahjoub.stockute.adapters.persistence;
+package com.smahjoub.stockute.adapters.persistence.portfolio;
 
 
 import com.smahjoub.stockute.domain.model.Portfolio;

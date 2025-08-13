@@ -1,4 +1,4 @@
-package com.smahjoub.stockute.application.port.out;
+package com.smahjoub.stockute.application.port.portfolio.out;
 
 
 import com.smahjoub.stockute.domain.model.Portfolio;

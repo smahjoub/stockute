@@ -1,6 +1,203 @@
 databaseChangeLog:
   - changeSet:
-      id: 001
+      id: 1
+      author: smahjoub
+      changes:
+        - createTable:
+            tableName: currencies
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: symbol
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: code
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: created_date
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: true
+              - column:
+                  name: last_modified_date
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: true
+              - column:
+                  name: version
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: 2
+      author: smahjoub
+      changes:
+        - createTable:
+            tableName: roles
+            columns:
+              - column:
+                  name: role_id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: description
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: created_date
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: true
+              - column:
+                  name: last_modified_date
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: true
+              - column:
+                  name: version
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: 3
+      author: smahjoub
+      changes:
+        - createTable:
+            tableName: users
+            columns:
+              - column:
+                  name: user_id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: email
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: username
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: password
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: is_enabled
+                  type: BOOLEAN
+                  constraints:
+                    nullable: true
+              - column:
+                  name: first_name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: last_name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: created_date
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: true
+              - column:
+                  name: last_modified_date
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: true
+              - column:
+                  name: version
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: 4
+      author: smahjoub
+      changes:
+        - createTable:
+            tableName: users_in_roles
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: role_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_date
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: true
+              - column:
+                  name: last_modified_date
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: true
+              - column:
+                  name: version
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+        - addForeignKeyConstraint:
+            baseTableName: users_in_roles
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: user_id
+            constraintName: fk_users_in_roles_user
+            onDelete: CASCADE
+            onUpdate: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: users_in_roles
+            baseColumnNames: role_id
+            referencedTableName: roles
+            referencedColumnNames: role_id
+            constraintName: fk_users_in_roles_role
+            onDelete: CASCADE
+            onUpdate: CASCADE
+  - changeSet:
+      id: 5
       author: smahjoub
       changes:
         - createTable:
@@ -9,16 +206,247 @@ databaseChangeLog:
               - column:
                   name: id
                   type: BIGINT
+                  autoIncrement: true
                   constraints:
                     primaryKey: true
-                    autoIncrement: true
+                    nullable: false
               - column:
                   name: name
                   type: VARCHAR(255)
                   constraints:
-                    nullable: false
+                    nullable: true
               - column:
-                  name: description
-                  type: TEXT
+                  name: notes
+                  type: VARCHAR(255)
                   constraints:
                     nullable: true
+              - column:
+                  name: currency_ref_id
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+              - column:
+                  name: user_ref_id
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+              - column:
+                  name: created_date
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: true
+              - column:
+                  name: last_modified_date
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: true
+              - column:
+                  name: version
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+        - addForeignKeyConstraint:
+            baseTableName: portfolios
+            baseColumnNames: currency_ref_id
+            referencedTableName: currencies
+            referencedColumnNames: id
+            constraintName: fk_portfolios_currency
+            onDelete: CASCADE
+            onUpdate: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: portfolios
+            baseColumnNames: user_ref_id
+            referencedTableName: users
+            referencedColumnNames: user_id
+            constraintName: fk_portfolios_user
+            onDelete: CASCADE
+            onUpdate: CASCADE
+  - changeSet:
+      id: 6
+      author: smahjoub
+      changes:
+        - createTable:
+            tableName: assets
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: ticker
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: exchange
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: quantity
+                  type: DOUBLE
+                  constraints:
+                    nullable: false
+              - column:
+                  name: price
+                  type: DECIMAL(19,4)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: portfolio_ref_id
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+              - column:
+                  name: currency_ref_id
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+              - column:
+                  name: created_date
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: true
+              - column:
+                  name: last_modified_date
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: true
+              - column:
+                  name: version
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+        - addForeignKeyConstraint:
+            baseTableName: assets
+            baseColumnNames: portfolio_ref_id
+            referencedTableName: portfolios
+            referencedColumnNames: id
+            constraintName: fk_assets_portfolio
+            onDelete: CASCADE
+            onUpdate: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: assets
+            baseColumnNames: currency_ref_id
+            referencedTableName: currencies
+            referencedColumnNames: id
+            constraintName: fk_assets_currency
+            onDelete: CASCADE
+            onUpdate: CASCADE
+  - changeSet:
+      id: 7
+      author: smahjoub
+      changes:
+        - createTable:
+            tableName: transactions
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: portfolio_ref_id
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+              - column:
+                  name: asset_ref_id
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+              - column:
+                  name: type
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: quantity
+                  type: DOUBLE
+                  constraints:
+                    nullable: false
+              - column:
+                  name: price
+                  type: DECIMAL(19,4)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: fees
+                  type: DECIMAL(19,4)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: transaction_date
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: true
+              - column:
+                  name: notes
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: created_date
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: true
+              - column:
+                  name: last_modified_date
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: true
+              - column:
+                  name: version
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+        - addForeignKeyConstraint:
+            baseTableName: transactions
+            baseColumnNames: portfolio_ref_id
+            referencedTableName: portfolios
+            referencedColumnNames: id
+            constraintName: fk_transactions_portfolio
+            onDelete: CASCADE
+            onUpdate: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: transactions
+            baseColumnNames: asset_ref_id
+            referencedTableName: assets
+            referencedColumnNames: id
+            constraintName: fk_transactions_asset
+            onDelete: CASCADE
+            onUpdate: CASCADE
+  - changeSet:
+      id: 8
+      author: smahjoub
+      changes:
+        - sqlFile:
+            encoding: utf-8
+            splitStatements: false
+            path: db/initial-data/insert-roles.sql
+  - changeSet:
+      id: 9
+      author: smahjoub
+      changes:
+        - sqlFile:
+            encoding: utf-8
+            splitStatements: false
+            path: db/initial-data/insert-users.sql
+  - changeSet:
+      id: 10
+      author: smahjoub
+      changes:
+        - sqlFile:
+            encoding: utf-8
+            splitStatements: false
+            path: db/initial-data/insert-users-in-roles.sql

@@ -1,6 +1,7 @@
-package com.smahjoub.stockute.adapters.persistence;
+package com.smahjoub.stockute.adapters.persistence.portfolio;
 
-import com.smahjoub.stockute.application.port.out.PortfolioPort;
+
+import com.smahjoub.stockute.application.port.portfolio.out.PortfolioPort;
 import com.smahjoub.stockute.domain.model.Portfolio;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

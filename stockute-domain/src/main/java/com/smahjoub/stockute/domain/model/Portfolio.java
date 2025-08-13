@@ -11,9 +11,15 @@ import org.springframework.data.relational.core.mapping.Table;
 @Setter
 @Getter
 @NoArgsConstructor(access = AccessLevel.PUBLIC)
-public class Portfolio {
+public class Portfolio extends Entity {
     @Id
     private Long id;
+
     private String name;
-    private String description;
+
+    private String notes;
+
+    private Long currencyRefId;
+
+    private Long userRefId;
 }

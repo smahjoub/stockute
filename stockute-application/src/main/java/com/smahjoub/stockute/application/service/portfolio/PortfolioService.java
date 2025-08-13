@@ -1,7 +1,8 @@
-package com.smahjoub.stockute.application.service;
+package com.smahjoub.stockute.application.service.portfolio;
 
-import com.smahjoub.stockute.application.port.out.PortfolioPort;
-import com.smahjoub.stockute.application.port.in.PortfolioUseCase;
+
+import com.smahjoub.stockute.application.port.portfolio.in.PortfolioUseCase;
+import com.smahjoub.stockute.application.port.portfolio.out.PortfolioPort;
 import com.smahjoub.stockute.domain.model.Portfolio;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;

@@ -1,27 +1,25 @@
-package com.smahjoub.stockute.adapters.restful;
+package com.smahjoub.stockute.adapters.restful.portfolio.controller;
 
-import com.smahjoub.stockute.application.port.in.PortfolioUseCase;
+import com.smahjoub.stockute.application.port.portfolio.in.PortfolioUseCase;
 import com.smahjoub.stockute.domain.model.Portfolio;
+import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("/portfolios")
+@AllArgsConstructor
 public class PortfolioController {
     private final PortfolioUseCase useCase;
 
-    public PortfolioController(PortfolioUseCase useCase) {
-        this.useCase = useCase;
-    }
-
     @PostMapping
-    public Mono<Portfolio> create(@RequestBody Portfolio portfolio) {
+    public Mono<Portfolio> create(@RequestBody final Portfolio portfolio) {
         return useCase.createPortfolio(portfolio);
     }
 
     @GetMapping("/{id}")
-    public Mono<Portfolio> get(@PathVariable Long id) {
+    public Mono<Portfolio> get(@PathVariable final Long id) {
         return useCase.getPortfolio(id);
     }
 
@@ -31,7 +29,7 @@ public class PortfolioController {
     }
 
     @DeleteMapping("/{id}")
-    public Mono<Void> delete(@PathVariable Long id) {
+    public Mono<Void> delete(@PathVariable final Long id) {
         return useCase.removePortfolio(id);
     }
 }
