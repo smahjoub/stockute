@@ -450,3 +450,11 @@ databaseChangeLog:
             encoding: utf-8
             splitStatements: false
             path: db/initial-data/insert-users-in-roles.sql
+  - changeSet:
+      id: 11
+      author: smahjoub
+      changes:
+        - sqlFile:
+            encoding: utf-8
+            splitStatements: false
+            path: db/initial-data/insert-default-currencies.sql

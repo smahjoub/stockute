@@ -7,7 +7,7 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface PortfolioMapper {
-    @Mapping(source = "currency.name", target = "currency")
+    @Mapping(source = "currency.code", target = "currency")
     PortfolioDTO toPortfolioDTO(Portfolio portfolio);
 }
 

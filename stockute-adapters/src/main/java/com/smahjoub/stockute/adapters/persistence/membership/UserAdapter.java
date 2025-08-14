@@ -11,12 +11,14 @@ import reactor.core.publisher.Mono;
 public class UserAdapter implements UserPort {
     private final UserRepository userRepository;
     @Override
-    public Mono<User> findByEmail(String email) {
-        return userRepository.findUserByEmail(email);
+    public Mono<User> findByEmail(final String email) {
+        return userRepository.findUserByEmail(email)
+                .switchIfEmpty(Mono.error(new IllegalArgumentException("User not found for email: " + email)));
     }
 
     @Override
-    public Mono<User> findByUsername(String username) {
-        return userRepository.findUserByUsername(username);
+    public Mono<User> findByUsername(final String username) {
+        return userRepository.findUserByUsername(username)
+                .switchIfEmpty(Mono.error(new IllegalArgumentException("User not found for username: " + username)));
     }
 }

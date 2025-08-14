@@ -1,13 +1,16 @@
 package com.smahjoub.stockute.adapters.restful.portfolio.controller;
 
 import com.smahjoub.stockute.adapters.restful.portfolio.dto.CreatePortfolioDTO;
+import com.smahjoub.stockute.adapters.restful.portfolio.dto.PortfolioDTO;
 import com.smahjoub.stockute.adapters.restful.portfolio.dto.UpdatePortfolioDTO;
 import com.smahjoub.stockute.adapters.restful.portfolio.mapper.CreatePortfolioRecordMapper;
+import com.smahjoub.stockute.adapters.restful.portfolio.mapper.PortfolioMapper;
 import com.smahjoub.stockute.adapters.restful.portfolio.mapper.UpdatePortfolioRecordMapper;
 import com.smahjoub.stockute.application.port.portfolio.in.PortfolioUseCase;
 import com.smahjoub.stockute.domain.model.Portfolio;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpHeaders;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -15,29 +18,32 @@ import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("/portfolios")
+@PreAuthorize("hasAuthority('ADMIN') or hasAuthority('USER')")
 @AllArgsConstructor
 public class PortfolioController {
     private final PortfolioUseCase useCase;
     private final CreatePortfolioRecordMapper createPortfolioRecordMapper;
     private final UpdatePortfolioRecordMapper updatePortfolioRecordMapper;
+    private final PortfolioMapper portfolioMapper;
 
     @PostMapping
-    public Mono<Portfolio> create(final Authentication authentication,
-                                  @RequestBody final CreatePortfolioDTO createPortfolioDTO) {
+    public Mono<PortfolioDTO> create(final Authentication authentication,
+                                     @RequestBody final CreatePortfolioDTO createPortfolioDTO) {
         final String userName = authentication.getName();
-        return useCase.createPortfolio(userName, createPortfolioRecordMapper.toPortfolio(createPortfolioDTO));
+        return useCase.createPortfolio(userName, createPortfolioRecordMapper.toPortfolio(createPortfolioDTO))
+                .map(portfolioMapper::toPortfolioDTO);
     }
 
     @GetMapping("/{id}")
-    public Mono<Portfolio> get(final Authentication authentication, @PathVariable final Long id) {
+    public Mono<PortfolioDTO> get(final Authentication authentication, @PathVariable final Long id) {
         final String userName = authentication.getName();
-        return useCase.getUserPortfolio(userName, id);
+        return useCase.getUserPortfolio(userName, id).map(portfolioMapper::toPortfolioDTO);
     }
 
     @GetMapping
-    public Flux<Portfolio> getAll(final Authentication authentication) {
+    public Flux<PortfolioDTO> getAll(final Authentication authentication) {
         final String userName = authentication.getName();
-        return useCase.getAllUserPortfolios(userName);
+        return useCase.getAllUserPortfolios(userName).map(portfolioMapper::toPortfolioDTO);
     }
 
     @DeleteMapping("/{id}")
@@ -49,10 +55,10 @@ public class PortfolioController {
 
 
     @PutMapping("/{id}")
-    public Mono<Portfolio> update(final Authentication authentication,
-                                  @RequestBody final UpdatePortfolioDTO updatePortfolioDTO,
-                                  @PathVariable final Long id,
-                                  @RequestHeader(value = HttpHeaders.IF_MATCH) final Long version
+    public Mono<PortfolioDTO> update(final Authentication authentication,
+                                     @RequestBody final UpdatePortfolioDTO updatePortfolioDTO,
+                                     @PathVariable final Long id,
+                                     @RequestHeader(value = HttpHeaders.IF_MATCH) final Long version
     ) {
         final String userName = authentication.getName();
         return useCase.getUserPortfolio(userName, id)
@@ -61,6 +67,6 @@ public class PortfolioController {
                         return Mono.error(new IllegalArgumentException("Portfolio version mismatch"));
                     }
                     return useCase.updatePortfolio(userName, updatePortfolioRecordMapper.updatePortfolioFromDto(updatePortfolioDTO, portfolio));
-                });
+                }).map(portfolioMapper::toPortfolioDTO);
     }
 }

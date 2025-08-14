@@ -40,7 +40,7 @@ public class UserService implements UserUseCase {
 
     @Override
     public Mono<User> getUserByUsername(String userName) {
-        return userPort.findByEmail(userName);
+        return userPort.findByUsername(userName);
     }
 
 }
