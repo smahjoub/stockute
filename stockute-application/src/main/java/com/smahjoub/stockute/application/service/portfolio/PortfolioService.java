@@ -1,6 +1,7 @@
 package com.smahjoub.stockute.application.service.portfolio;
 
 
+import com.smahjoub.stockute.application.port.membership.in.UserUseCase;
 import com.smahjoub.stockute.application.port.portfolio.in.PortfolioUseCase;
 import com.smahjoub.stockute.application.port.portfolio.out.PortfolioPort;
 import com.smahjoub.stockute.domain.model.Portfolio;
@@ -13,24 +14,51 @@ import reactor.core.publisher.Mono;
 @AllArgsConstructor
 public class PortfolioService implements PortfolioUseCase {
     private final PortfolioPort repository;
+    private final UserUseCase userUseCase;
 
     @Override
-    public Mono<Portfolio> createPortfolio(Portfolio portfolio) {
-        return repository.save(portfolio);
+    public Mono<Portfolio> createPortfolio(final String userName, final Portfolio portfolio) {
+        return userUseCase.getUserByUsername(userName)
+                .flatMap(user -> {
+                    portfolio.setUserRefId(user.getId());
+                    return repository.save(portfolio);
+                });
     }
 
     @Override
-    public Mono<Portfolio> getPortfolio(Long id) {
-        return repository.findById(id);
+    public Mono<Portfolio> updatePortfolio(final String userName, final Portfolio portfolio) {
+        return userUseCase.getUserByUsername(userName)
+                .flatMap(user -> {
+                    portfolio.setUserRefId(user.getId());
+                    return repository.save(portfolio);
+                });
     }
 
     @Override
-    public Flux<Portfolio> getAllPortfolios() {
-        return repository.findAll();
+    public Mono<Portfolio> getUserPortfolio(String userName, final Long id) {
+        return userUseCase.getUserByUsername(userName)
+                .flatMap(user ->
+                        repository.findById(id).flatMap(p -> {
+                            if (!p.getUserRefId().equals(user.getId())) {
+                                return Mono.error(new IllegalArgumentException("You do not have permission to delete this portfolio."));
+                            }
+                            return Mono.just(p);
+                        })
+                );
     }
 
     @Override
-    public Mono<Void> removePortfolio(Long id) {
-        return repository.deleteById(id);
+    public Flux<Portfolio> getAllUserPortfolios(final String userName) {
+        return userUseCase.getUserByUsername(userName)
+                .flatMapMany(user -> repository.findAllByUserRefId(user.getId()));
     }
+
+    @Override
+    public Mono<Void> removePortfolio(final String userName, final Long id) {
+        return getUserPortfolio(userName, id)
+                .flatMap(p -> repository.deleteById(id))
+                .then();
+    }
+
+
 }

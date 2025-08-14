@@ -14,4 +14,9 @@ public class UserAdapter implements UserPort {
     public Mono<User> findByEmail(String email) {
         return userRepository.findUserByEmail(email);
     }
+
+    @Override
+    public Mono<User> findByUsername(String username) {
+        return userRepository.findUserByUsername(username);
+    }
 }

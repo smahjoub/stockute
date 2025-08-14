@@ -9,8 +9,7 @@ public class PortfolioDTO {
     private Long id;
     private String name;
     private String notes;
-    private Long currencyRefId;
-    private Long userRefId;
+    private String currency;
     private java.time.LocalDateTime createdDate;
     private java.time.LocalDateTime lastModifiedDate;
     private Long version;

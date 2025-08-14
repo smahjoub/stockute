@@ -6,4 +6,6 @@ import reactor.core.publisher.Mono;
 public interface UserUseCase {
 
     Mono<User> authenticate(String email, String password);
+
+    Mono<User> getUserByUsername(String userName);
 }

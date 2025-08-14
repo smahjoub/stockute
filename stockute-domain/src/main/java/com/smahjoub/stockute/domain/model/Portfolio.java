@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.relational.core.mapping.Table;
 
 @Table("portfolios")
@@ -22,4 +23,7 @@ public class Portfolio extends Entity {
     private Long currencyRefId;
 
     private Long userRefId;
+
+    @Transient
+    private Currency currency;
 }

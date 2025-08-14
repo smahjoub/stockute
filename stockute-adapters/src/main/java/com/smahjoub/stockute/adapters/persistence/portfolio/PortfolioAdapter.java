@@ -26,8 +26,8 @@ public class PortfolioAdapter implements PortfolioPort {
     }
 
     @Override
-    public Flux<Portfolio> findAll() {
-        return portfolioRepository.findAll();
+    public Flux<Portfolio> findAllByUserRefId(Long userRefId) {
+        return portfolioRepository.findAllByUserRefId(userRefId);
     }
 
     @Override

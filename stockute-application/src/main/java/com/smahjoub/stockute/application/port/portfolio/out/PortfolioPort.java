@@ -8,6 +8,6 @@ import reactor.core.publisher.Mono;
 public interface PortfolioPort {
     Mono<Portfolio> save(Portfolio portfolio);
     Mono<Portfolio> findById(Long id);
-    Flux<Portfolio> findAll();
+    Flux<Portfolio> findAllByUserRefId(Long userRefId);
     Mono<Void> deleteById(Long id);
 }

@@ -5,8 +5,10 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface PortfolioUseCase {
-    Mono<Portfolio> createPortfolio(Portfolio portfolio);
-    Mono<Portfolio> getPortfolio(Long id);
-    Flux<Portfolio> getAllPortfolios();
-    Mono<Void> removePortfolio(Long id);
+    Mono<Portfolio> createPortfolio(String userName, Portfolio portfolio);
+    Mono<Portfolio> updatePortfolio(String userName, Portfolio portfolio);
+
+    Mono<Portfolio> getUserPortfolio(String userName, Long id);
+    Flux<Portfolio> getAllUserPortfolios(String userName);
+    Mono<Void> removePortfolio(String userName, Long id);
 }
