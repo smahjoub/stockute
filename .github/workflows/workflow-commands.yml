@@ -1,60 +1,64 @@
-## This workflow shows how to use workflow commands.
+## This workflow shows how to use conditional executions on context
 ##
-## More details on https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/workflow-commands-for-github-actions
+## Exercise Goal:
+## The workflow below contains intentional mistakes or missing logic.
+## Your task is to fix it so that:
+##
+## ✅ Jobs run only on the appropriate branches
+## ✅ Each job runs in the correct order using 'needs'
+## ✅ Conditional logic is used with the correct GitHub context values
+## ✅ CVE scanning runs on main, feature/* and bugfix/* branches only
+## ✅ Deployment runs ONLY on the main branch, and only after a successful CVE scan
 
-name: Workflow Commands
+name: CI Workflow Exercise
+
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - '**'
 
 jobs:
-  job1:
+  build:
     runs-on: ubuntu-latest
-    # Map a step output to a job output
-    outputs:
-      output1: ${{ steps.example_step.outputs.result }}
-      output2: ${{ steps.sets-a-secret.outputs.secret-number }}
-
     steps:
-      # ENV Vars
-      - name: Set the value in env vars
-        run: echo "action_state=yellow" >> $GITHUB_ENV
-      - name: Use the value from env vars
-        run: printf '%s\n' "$action_state" # This will output 'yellow'
-      # Grouping messages
-      - name: Grouping messages
-        run: |
-          echo "::group::This is a grouped message"
-          echo "This is the content of the group"
-          echo "And a new line"
-          echo "And another line"
-          echo "::endgroup::"
-      # Output
-      - name: Set output
-        id: example_step
-        run: echo "result=output_value" >> $GITHUB_OUTPUT
-      - name: Use output
-        run: echo "The output was ${{ steps.example_step.outputs.result }}"
-      # Toolkit functions
-      - name: Create messages
-        run: |
-          echo "::debug::This is a debug Message"
-          echo "::notice::This is a notice Message"
-          echo "::warning::This is a warning Message"
-          echo "::error::This is an error Message"
-      - id: sets-a-secret
-        name: Generate, mask, and output a secret
-        run: |
-          the_secret=$((RANDOM))
-          echo "::add-mask::$the_secret"
-          echo "secret-number=$the_secret" >> "$GITHUB_OUTPUT"
-      - name: Print the secret output (protected by a mask)
-        run:  echo "the secret number is ${{ steps.sets-a-secret.outputs.secret-number }}"
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Build
+        run: echo "🛠️ Building the project..."
 
-  job2:
+  # ℹ️ Must run after 'build'
+  # ℹ️ Should run only for: main, feature/* and bugfix/*
+  test:
     runs-on: ubuntu-latest
-    needs: job1
+    if: startsWith(github.ref, 'refs/heads/bug-fix') || startsWith(github.ref, 'refs/heads/feature')
     steps:
-      - name: Use the outputs from job1
-        run: |
-          echo "The output1 from job1 was ${{ needs.job1.outputs.output1 }}"
-          echo "The output2 from job1 was ${{ needs.job1.outputs.output2 }}"
+      - name: Run Tests
+        run: echo "✅ Testing on ${{ github.ref }}"
+
+  # ℹ️ Must run after 'build'
+  # ℹ️ Should run only for branches starting with 'bugfix/'
+  bugfix-check:
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/heads/bug-fix')
+    steps:
+      - name: Run Bugfix Validation
+        run: echo "🕵️ Bugfix validation for ${{ github.ref }}"
+
+  # ℹ️ Must run after 'test'
+  # ℹ️ Should run only for: main, feature/* and bugfix/*
+  cve-scan:
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/bugfix')
+    steps:
+      - name: CVE Scan
+        run: echo "🛡️ Scanning dependencies..."
+
+  # ℹ️ Must run only after CVE scan
+  # ℹ️ Should run only for the 'main' branch
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [test]
+    steps:
+      - name: Deploy
+        run: echo "🚀 Deploying ${{ github.ref }}"
