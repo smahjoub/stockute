@@ -30,7 +30,7 @@ jobs:
   # ℹ️ Should run only for: main, feature/* and bugfix/*
   test:
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/heads/bug-fix') || startsWith(github.ref, 'refs/heads/feature')
+    if: ${{ startsWith(github.ref, 'refs/heads/bug-fix') || startsWith(github.ref, 'refs/heads/feature')  }}
     steps:
       - name: Run Tests
         run: echo "✅ Testing on ${{ github.ref }}"
@@ -39,7 +39,7 @@ jobs:
   # ℹ️ Should run only for branches starting with 'bugfix/'
   bugfix-check:
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/heads/bug-fix')
+    if: ${{ startsWith(github.ref, 'refs/heads/bug-fix') }}
     steps:
       - name: Run Bugfix Validation
         run: echo "🕵️ Bugfix validation for ${{ github.ref }}"
@@ -49,7 +49,7 @@ jobs:
   cve-scan:
     runs-on: ubuntu-latest
     needs: test
-    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/bugfix')
+    if: ${{ github.ref  == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/bugfix') }}
     steps:
       - name: CVE Scan
         run: echo "🛡️ Scanning dependencies..."
