@@ -26,6 +26,18 @@
         <module>stockute-application</module>
         <module>stockute-domain</module>
     </modules>
+    <distributionManagement>
+        <repository>
+            <id>stockute</id>
+            <name>My Release Repository</name>
+            <url>https://github.com/smahjoub/stockute/releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>my-snapshots</id>
+            <name>My Snapshot Repository</name>
+            <url>https://github.com/smahjoub/stockute/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
 
     <dependencyManagement>
         <dependencies>
