@@ -79,7 +79,7 @@ class PortfolioServiceTest {
         when(repository.save(any(Portfolio.class))).thenReturn(Mono.just(portfolio));
 
         StepVerifier.create(service.updatePortfolio("user", portfolio))
-                .expectNextMatches(Objects::nonNull) // Assert the emitted portfolio is not null
+                .expectNextMatches(Objects::nonNull)
                 .verifyComplete();
     }
 
