@@ -67,6 +67,4 @@ public class PortfolioService implements PortfolioUseCase {
                 .flatMap(p -> repository.deleteById(id))
                 .then();
     }
-
-
 }
