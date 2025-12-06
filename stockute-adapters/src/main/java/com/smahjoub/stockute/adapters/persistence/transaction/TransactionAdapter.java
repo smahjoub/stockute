@@ -5,6 +5,7 @@ import com.smahjoub.stockute.domain.model.Transaction;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Component
@@ -14,5 +15,10 @@ public class TransactionAdapter implements TransactionPort {
     @Override
     public Mono<Transaction> save(final Transaction transaction) {
         return transactionRepository.save(transaction);
+    }
+
+    @Override
+    public Flux<Transaction> findAllByPortfolioIdAndAssetId(Long portfolioId, Long assetId) {
+        return transactionRepository.findAllByPortfolioIdAndAssetId(portfolioId, assetId);
     }
 }

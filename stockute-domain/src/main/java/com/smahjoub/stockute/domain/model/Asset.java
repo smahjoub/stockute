@@ -23,8 +23,8 @@ public class Asset extends Entity {
     private String name;
     @Column("quantity")
     private double quantity;
-    @Column("price")
-    private BigDecimal price;
+    @Column("average_price")
+    private BigDecimal averagePrice;
     @Column("portfolio_ref_id")
     private Long portfolioRefId;
     @Column("currency_ref_id")

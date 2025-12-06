@@ -7,6 +7,7 @@ import com.smahjoub.stockute.application.port.transaction.out.TransactionPort;
 import com.smahjoub.stockute.domain.model.Transaction;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Service
@@ -35,6 +36,10 @@ public class TransactionService implements TransactionUseCase {
                                     transaction.setPortfolioRefId(portfolioId);
                                     return transactionPort.save(transaction);
                                 })
-        );
+                );
+    }
+
+    public Flux<Transaction> getAllTransactionsForAssetInPortfolio(final Long portfolioId, final Long asserId) {
+        return transactionPort.findAllByPortfolioIdAndAssetId(portfolioId, asserId);
     }
 }

@@ -35,7 +35,7 @@ public class AssetAdapter implements AssetPort {
         asset.setExchange(exchange);
         asset.setCurrencyRefId(currencyRefId);
         asset.setQuantity(0.0d);
-        asset.setPrice(BigDecimal.ZERO);
+        asset.setAveragePrice(BigDecimal.ZERO);
         return assetRepository.save(asset);
     }
 
@@ -43,7 +43,7 @@ public class AssetAdapter implements AssetPort {
     public Mono<Asset> updateAsset(final Long assetId, final double quantity, final BigDecimal price) {
         return assetRepository.findById(assetId)
                 .flatMap(asset -> {
-                    final BigDecimal currentPrice = asset.getPrice() == null ? BigDecimal.ZERO : asset.getPrice();
+                    final BigDecimal currentPrice = asset.getAveragePrice() == null ? BigDecimal.ZERO : asset.getAveragePrice();
                     final BigDecimal currentQtyBD = BigDecimal.valueOf(asset.getQuantity());
                     final BigDecimal addedQtyBD = BigDecimal.valueOf(quantity);
                     final BigDecimal newQtyBD = currentQtyBD.add(addedQtyBD);
@@ -51,16 +51,15 @@ public class AssetAdapter implements AssetPort {
                     if (newQtyBD.compareTo(BigDecimal.ZERO) <= 0) {
                         // If quantity becomes zero or negative, set price to zero and update quantity
                         asset.setQuantity(newQtyBD.doubleValue());
-                        asset.setPrice(BigDecimal.ZERO);
+                        asset.setAveragePrice(BigDecimal.ZERO);
                     } else {
                         final BigDecimal addedTotal = (price == null ? BigDecimal.ZERO : price).multiply(addedQtyBD);
                         final BigDecimal currentTotal = currentPrice.multiply(currentQtyBD);
                         final BigDecimal newAvgPrice = currentTotal.add(addedTotal)
                                 .divide(newQtyBD, 8, java.math.RoundingMode.HALF_UP);
                         asset.setQuantity(newQtyBD.doubleValue());
-                        asset.setPrice(newAvgPrice);
+                        asset.setAveragePrice(newAvgPrice);
                     }
-
                     return assetRepository.save(asset);
         });
     }
