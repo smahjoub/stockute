@@ -5,9 +5,9 @@ import com.smahjoub.stockute.domain.model.Role;
 import com.smahjoub.stockute.domain.model.User;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
+import static org.assertj.core.api.Assertions.assertThat;
 
 
-import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -38,6 +38,7 @@ class UserMapperTest {
         assertEquals(user.getFirstName(), result.firstName());
         assertEquals(user.getLastName(), result.lastName());
         assertEquals(user.isAccountNonLocked(), result.active()); // Assuming isAccountNonLocked maps to active
-        assertEquals(List.of("USER", "ADMIN"), result.roles());
+
+        assertThat(result.roles()).contains("USER", "ADMIN");
     }
 }

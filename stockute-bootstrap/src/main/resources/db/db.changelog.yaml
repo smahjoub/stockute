@@ -296,7 +296,7 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
-                  name: price
+                  name: average_price
                   type: DECIMAL(19,4)
                   constraints:
                     nullable: true
