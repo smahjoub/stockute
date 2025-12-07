@@ -2,6 +2,7 @@ package com.smahjoub.stockute.domain.model;
 
 import lombok.*;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
@@ -29,4 +30,6 @@ public class Asset extends Entity {
     private Long portfolioRefId;
     @Column("currency_ref_id")
     private Long currencyRefId;
+    @Transient
+    private Currency currency;
 }

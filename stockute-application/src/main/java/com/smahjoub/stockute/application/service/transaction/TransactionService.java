@@ -1,5 +1,6 @@
 package com.smahjoub.stockute.application.service.transaction;
 
+import com.smahjoub.stockute.application.exception.PortfolioNotFoundException;
 import com.smahjoub.stockute.application.port.asset.out.AssetPort;
 import com.smahjoub.stockute.application.port.portfolio.out.PortfolioPort;
 import com.smahjoub.stockute.application.port.transaction.in.TransactionUseCase;
@@ -22,13 +23,19 @@ public class TransactionService implements TransactionUseCase {
                                                final String assetTicker, final String exchange,
                                                final Transaction transaction, final Long portfolioId) {
         return portfolioPort.findById(portfolioId)
+                .switchIfEmpty(Mono.error(new PortfolioNotFoundException("Portfolio not found")))
                 .flatMap(portfolio ->
                         assetPort.getAssetForPortfolio(portfolioId, assetTicker, exchange, portfolio.getCurrencyRefId())
                                 .switchIfEmpty(
                                         assetPort.createAssetForPortfolio(
-                                                assetName, portfolio.getCurrencyRefId(),
-                                                assetTicker, exchange, portfolio.getCurrencyRefId()
-                                        )
+                                                        assetName,
+                                                        portfolioId,
+                                                        assetTicker,
+                                                        exchange,
+                                                        portfolio.getCurrencyRefId()
+                                                )
+                                                .then()
+                                                .then(assetPort.getAssetForPortfolio(portfolioId, assetTicker, exchange, portfolio.getCurrencyRefId()))
                                 )
                                 .flatMap(asset -> assetPort.updateAsset(asset.getId(), transaction.getQuantity(), transaction.getPrice()))
                                 .flatMap(asset -> {
@@ -37,6 +44,7 @@ public class TransactionService implements TransactionUseCase {
                                     return transactionPort.save(transaction);
                                 })
                 );
+
     }
 
     public Flux<Transaction> getAllTransactionsForAssetInPortfolio(final Long portfolioId, final Long asserId) {
