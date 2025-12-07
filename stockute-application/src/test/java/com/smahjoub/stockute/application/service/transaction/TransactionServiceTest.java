@@ -6,6 +6,7 @@ import static org.mockito.Mockito.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import com.smahjoub.stockute.application.exception.PortfolioNotFoundException;
 import com.smahjoub.stockute.application.port.asset.out.AssetPort;
 import com.smahjoub.stockute.application.port.portfolio.out.PortfolioPort;
 import com.smahjoub.stockute.application.port.transaction.out.TransactionPort;
@@ -82,12 +83,23 @@ class TransactionServiceTest {
     void createTransaction_AssetNotExists_CreatesThenUpdatesAndSaves() {
         // Given
         when(portfolioPort.findById(1L)).thenReturn(Mono.just(portfolio));
-        when(assetPort.getAssetForPortfolio(eq(1L), eq("BTC"), eq("BINANCE"), eq(1L)))
-                .thenReturn(Mono.empty());
+
+        // Create the asset
         when(assetPort.createAssetForPortfolio("Bitcoin", 1L, "BTC", "BINANCE", 1L))
                 .thenReturn(Mono.just(asset));
-        when(assetPort.updateAsset(eq(100L), eq(10.0), eq(BigDecimal.valueOf(100.0)))).thenReturn(Mono.just(asset));
-        when(transactionPort.save(any(Transaction.class))).thenReturn(Mono.just(transaction));
+
+        // After creation, re-query must return the created asset
+        when(assetPort.getAssetForPortfolio(eq(1L), eq("BTC"), eq("BINANCE"), eq(1L)))
+                .thenReturn(Mono.empty())  // First call
+                .thenReturn(Mono.just(asset));  // Second call after creation
+
+        // Update asset
+        when(assetPort.updateAsset(eq(100L), eq(10.0), eq(BigDecimal.valueOf(100.0))))
+                .thenReturn(Mono.just(asset));
+
+        // Save transaction
+        when(transactionPort.save(any(Transaction.class)))
+                .thenReturn(Mono.just(transaction));
 
         // When & Then
         StepVerifier.create(transactionService.createTransaction("Bitcoin", "BTC", "BINANCE", transaction, 1L))
@@ -97,21 +109,29 @@ class TransactionServiceTest {
                 })
                 .verifyComplete();
 
+        verify(portfolioPort).findById(1L);
+        verify(assetPort, times(2)).getAssetForPortfolio(1L, "BTC", "BINANCE", 1L);
         verify(assetPort).createAssetForPortfolio("Bitcoin", 1L, "BTC", "BINANCE", 1L);
         verify(assetPort).updateAsset(100L, 10.0, BigDecimal.valueOf(100.0));
+        verify(transactionPort).save(any(Transaction.class));
     }
 
+
     @Test
-    void createTransaction_PortfolioNotFound_ReturnsEmpty() {
+    void createTransaction_PortfolioNotFound_ErrorsWithPortfolioNotFoundException() {
         // Given
         when(portfolioPort.findById(999L)).thenReturn(Mono.empty());
 
         // When & Then
         StepVerifier.create(transactionService.createTransaction("Test", "TEST", "TESTEX", transaction, 999L))
-                .verifyComplete();
+                .expectErrorMatches(throwable -> throwable instanceof PortfolioNotFoundException
+                        || throwable.getCause() instanceof PortfolioNotFoundException)
+                .verify();
 
+        verify(portfolioPort).findById(999L);
         verifyNoInteractions(assetPort, transactionPort);
     }
+
 
     @Test
     void getAllTransactionsForAssetInPortfolio_ReturnsTransactions() {
