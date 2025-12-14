@@ -301,6 +301,26 @@ databaseChangeLog:
                   constraints:
                     nullable: true
               - column:
+                  name: accumulated_fees
+                  type: DECIMAL(19,4)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: accumulated_dividends
+                  type: DECIMAL(19,4)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: total_gain_loss
+                  type: DECIMAL(19,4)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: total_amount_invested
+                  type: DECIMAL(19,4)
+                  constraints:
+                    nullable: true
+              - column:
                   name: portfolio_ref_id
                   type: BIGINT
                   constraints:

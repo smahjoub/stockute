@@ -32,4 +32,12 @@ public class Asset extends Entity {
     private Long currencyRefId;
     @Transient
     private Currency currency;
+    @Column("accumulated_fees")
+    private BigDecimal accumulatedFees;
+    @Column("accumulated_dividends")
+    private BigDecimal accumulatedDividends;
+    @Column("total_gain_loss")
+    private BigDecimal totalGainLoss;
+    @Column("total_amount_invested")
+    private BigDecimal totalAmountInvested;
 }
