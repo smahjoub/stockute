@@ -34,14 +34,14 @@ class AssetControllerPureUnitTest {
         long portfolioId = 1L;
         Currency usd = new Currency(1L, "Dollar", "$", "USD");
         Asset asset1 = new Asset(10L, "AAPL", "NASDAQ", "Apple Inc.", 5.0,
-                new BigDecimal("150.00"), portfolioId, 1L, usd);
+                new BigDecimal("150.00"), portfolioId, 1L, usd, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO);
         Asset asset2 = new Asset(11L, "MSFT", "NASDAQ", "Microsoft Corp.", 3.0,
-                new BigDecimal("300.00"), portfolioId, 1L, usd);
+                new BigDecimal("300.00"), portfolioId, 1L, usd, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO);
 
         AssetDTO dto1 = new AssetDTO(10L, "AAPL", "NASDAQ", "Apple Inc.", 5.0,
-                new BigDecimal("150.00"), 1L, "USD");
+                new BigDecimal("150.00"), 1L, "USD", BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO);
         AssetDTO dto2 = new AssetDTO(11L, "MSFT", "NASDAQ", "Microsoft Corp.", 3.0,
-                new BigDecimal("300.00"), 1L, "USD");
+                new BigDecimal("300.00"), 1L, "USD", BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO);
 
         when(assetService.getAllAssetsForPortfolio(portfolioId))
                 .thenReturn(Flux.just(asset1, asset2));

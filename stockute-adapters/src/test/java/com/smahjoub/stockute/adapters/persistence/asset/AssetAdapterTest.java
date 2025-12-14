@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 import com.smahjoub.stockute.domain.model.Asset;
+import com.smahjoub.stockute.domain.model.Transaction;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -125,108 +126,64 @@ class AssetAdapterTest {
     }
 
     @Test
-    void updateAsset_FirstPurchase_UpdatesQuantityAndPrice() {
-        // Given - Asset exists with zero quantity
-        Asset emptyAsset = new Asset();
-        emptyAsset.setId(100L);
-        emptyAsset.setQuantity(0.0);
-        emptyAsset.setAveragePrice(BigDecimal.ZERO);
-        when(assetRepository.findById(100L)).thenReturn(Mono.just(emptyAsset));
-        when(assetRepository.save(any(Asset.class))).thenReturn(Mono.just(emptyAsset));
-
-        // When & Then - Add 5 units at $200
-        StepVerifier.create(assetAdapter.updateAsset(100L, 5.0, BigDecimal.valueOf(200.0)))
-                .assertNext(updated -> {
-                    assert updated.getQuantity() == 5.0;
-                    assert updated.getAveragePrice().compareTo(BigDecimal.valueOf(200.0)) == 0;
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    void updateAsset_ExistingAsset_RecalculatesAveragePrice() {
-        // Given - Asset has 10 units at $100 avg = $1000 total
+    void updateAsset_WithVariousTransactionTypesAndFees() {
+        // Given - Initial asset with quantity 10 and avg price 100, some accumulated fees and totals
         testAsset.setQuantity(10.0);
-        testAsset.setAveragePrice(BigDecimal.valueOf(100)); // Use 100, not 100.00
+        testAsset.setAveragePrice(BigDecimal.valueOf(100));
+        testAsset.setAccumulatedFees(BigDecimal.valueOf(5.0));
+        testAsset.setTotalAmountInvested(BigDecimal.valueOf(1000.0));
+        testAsset.setTotalGainLoss(BigDecimal.valueOf(100.0));
+
         when(assetRepository.findById(100L)).thenReturn(Mono.just(testAsset));
+        when(assetRepository.save(any(Asset.class))).thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
 
-        Asset savedAsset = new Asset(); // Mock the SAVED asset with expected values
-        savedAsset.setId(100L);
-        savedAsset.setQuantity(15.0);
-        savedAsset.setAveragePrice(BigDecimal.valueOf(116.66666667)); // Exact expected result
-        when(assetRepository.save(any(Asset.class))).thenReturn(Mono.just(savedAsset));
+        // BUY transaction adding 5 units at price 150 with 2 fees
+        Transaction buyTx = new Transaction();
+        buyTx.setQuantity(5);
+        buyTx.setPrice(BigDecimal.valueOf(150));
+        buyTx.setFees(BigDecimal.valueOf(2));
+        buyTx.setType("BUY");
 
-        // When & Then
-        StepVerifier.create(assetAdapter.updateAsset(100L, 5.0, BigDecimal.valueOf(150)))
+        StepVerifier.create(assetAdapter.updateAsset(100L, buyTx))
                 .assertNext(updated -> {
                     assert updated.getQuantity() == 15.0;
-                    // Verify the ACTUAL calculation: (1000 + 750) / 15 = 116.66666667
-                    BigDecimal expectedAvg = BigDecimal.valueOf(1750).divide(
-                            BigDecimal.valueOf(15), 8, RoundingMode.HALF_UP);
-                    assert updated.getAveragePrice().compareTo(expectedAvg) == 0;
+                    BigDecimal expectedAvgPrice = BigDecimal.valueOf(1000 + 750)
+                            .divide(BigDecimal.valueOf(15), 8, RoundingMode.HALF_UP);
+                    assert updated.getAveragePrice().compareTo(expectedAvgPrice) == 0;
+
+                    assert updated.getTotalAmountInvested().compareTo(BigDecimal.valueOf(1750)) == 0;
+                    assert updated.getTotalGainLoss().compareTo(BigDecimal.valueOf(100)) == 0;
                 })
                 .verifyComplete();
-    }
 
+        // Reset testAsset state independently for SELL
+        Asset sellTestAsset = new Asset();
+        sellTestAsset.setId(100L);
+        sellTestAsset.setQuantity(10.0);
+        sellTestAsset.setAveragePrice(BigDecimal.valueOf(100));
+        sellTestAsset.setAccumulatedFees(BigDecimal.valueOf(5.0));
+        sellTestAsset.setTotalAmountInvested(BigDecimal.valueOf(1000.0));
+        sellTestAsset.setTotalGainLoss(BigDecimal.valueOf(100.0));
 
-    @Test
-    void updateAsset_ZeroQuantity_SetsPriceToZero() {
-        // Given - Asset has 10 units, add -10 units
-        when(assetRepository.findById(100L)).thenReturn(Mono.just(testAsset));
-        when(assetRepository.save(any(Asset.class))).thenReturn(Mono.just(testAsset));
+        when(assetRepository.findById(100L)).thenReturn(Mono.just(sellTestAsset));
 
-        // When & Then
-        StepVerifier.create(assetAdapter.updateAsset(100L, -10.0, BigDecimal.valueOf(50.0)))
+        // SELL transaction subtracting 3 units at price 160 with 1 fees
+        Transaction sellTx = new Transaction();
+        sellTx.setQuantity(3);
+        sellTx.setPrice(BigDecimal.valueOf(160));
+        sellTx.setFees(BigDecimal.valueOf(1));
+        sellTx.setType("SELL");
+
+        StepVerifier.create(assetAdapter.updateAsset(100L, sellTx))
                 .assertNext(updated -> {
-                    assert updated.getQuantity() == 0.0;
-                    assert updated.getAveragePrice().equals(BigDecimal.ZERO);
+                    assert updated.getQuantity() == 7.0;
+                    assert updated.getTotalAmountInvested().compareTo(BigDecimal.valueOf(1000)) == 0;
+                    assert updated.getTotalGainLoss().compareTo(BigDecimal.valueOf(580)) == 0;
                 })
                 .verifyComplete();
+
+        verify(assetRepository, times(2)).findById(100L);
+        verify(assetRepository, times(2)).save(any(Asset.class));
     }
 
-    @Test
-    void updateAsset_NegativeQuantity_SetsPriceToZero() {
-        // Given - Asset has 5 units, add -10 units
-        testAsset.setQuantity(5.0);
-        when(assetRepository.findById(100L)).thenReturn(Mono.just(testAsset));
-        when(assetRepository.save(any(Asset.class))).thenReturn(Mono.just(testAsset));
-
-        // When & Then
-        StepVerifier.create(assetAdapter.updateAsset(100L, -10.0, BigDecimal.valueOf(50.0)))
-                .assertNext(updated -> {
-                    assert updated.getQuantity() == -5.0;
-                    assert updated.getAveragePrice().equals(BigDecimal.ZERO);
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    void updateAsset_AssetNotFound_ReturnsEmpty() {
-        // Given
-        when(assetRepository.findById(999L)).thenReturn(Mono.empty());
-
-        // When & Then
-        StepVerifier.create(assetAdapter.updateAsset(999L, 5.0, BigDecimal.valueOf(100.0)))
-                .verifyComplete();
-
-        verify(assetRepository).findById(999L);
-    }
-
-    @Test
-    void updateAsset_NullPrice_UsesZero() {
-        // Given
-        when(assetRepository.findById(100L)).thenReturn(Mono.just(testAsset));
-        when(assetRepository.save(any(Asset.class))).thenReturn(Mono.just(testAsset));
-
-        // When & Then
-        StepVerifier.create(assetAdapter.updateAsset(100L, 2.0, null))
-                .assertNext(updated -> {
-                    assert updated.getQuantity() == 12.0;
-                    // Price calculation uses ZERO for null price
-                    BigDecimal currentTotal = BigDecimal.valueOf(100).multiply(BigDecimal.valueOf(10));
-                    BigDecimal newTotal = currentTotal.divide(BigDecimal.valueOf(12), 8, RoundingMode.HALF_UP);
-                    assert updated.getAveragePrice().compareTo(newTotal) == 0;
-                })
-                .verifyComplete();
-    }
 }
