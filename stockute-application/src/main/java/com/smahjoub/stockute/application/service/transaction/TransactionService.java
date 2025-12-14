@@ -37,7 +37,7 @@ public class TransactionService implements TransactionUseCase {
                                                 .then()
                                                 .then(assetPort.getAssetForPortfolio(portfolioId, assetTicker, exchange, portfolio.getCurrencyRefId()))
                                 )
-                                .flatMap(asset -> assetPort.updateAsset(asset.getId(), transaction.getQuantity(), transaction.getPrice()))
+                                .flatMap(asset -> assetPort.updateAsset(asset.getId(), transaction))
                                 .flatMap(asset -> {
                                     transaction.setAssetRefId(asset.getId());
                                     transaction.setPortfolioRefId(portfolioId);

@@ -2,6 +2,7 @@ package com.smahjoub.stockute.adapters.persistence.asset;
 
 import com.smahjoub.stockute.application.port.asset.out.AssetPort;
 import com.smahjoub.stockute.domain.model.Asset;
+import com.smahjoub.stockute.domain.model.Transaction;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -40,26 +41,38 @@ public class AssetAdapter implements AssetPort {
     }
 
     @Override
-    public Mono<Asset> updateAsset(final Long assetId, final double quantity, final BigDecimal price) {
+    public Mono<Asset> updateAsset(final Long assetId, final Transaction transaction) {
         return assetRepository.findById(assetId)
                 .flatMap(asset -> {
                     final BigDecimal currentPrice = asset.getAveragePrice() == null ? BigDecimal.ZERO : asset.getAveragePrice();
                     final BigDecimal currentQtyBD = BigDecimal.valueOf(asset.getQuantity());
-                    final BigDecimal addedQtyBD = BigDecimal.valueOf(quantity);
-                    final BigDecimal newQtyBD = currentQtyBD.add(addedQtyBD);
+                    final BigDecimal addedQtyBD = BigDecimal.valueOf(transaction.getQuantity());
+                    final BigDecimal newQtyBD = "BUY".equals(transaction.getType()) ? currentQtyBD.add(addedQtyBD) : currentQtyBD.subtract(addedQtyBD);
 
                     if (newQtyBD.compareTo(BigDecimal.ZERO) <= 0) {
                         // If quantity becomes zero or negative, set price to zero and update quantity
                         asset.setQuantity(newQtyBD.doubleValue());
                         asset.setAveragePrice(BigDecimal.ZERO);
                     } else {
-                        final BigDecimal addedTotal = (price == null ? BigDecimal.ZERO : price).multiply(addedQtyBD);
+                        final BigDecimal addedTotal = (transaction.getPrice() == null ? BigDecimal.ZERO : transaction.getPrice()).multiply(addedQtyBD);
                         final BigDecimal currentTotal = currentPrice.multiply(currentQtyBD);
                         final BigDecimal newAvgPrice = currentTotal.add(addedTotal)
                                 .divide(newQtyBD, 8, java.math.RoundingMode.HALF_UP);
                         asset.setQuantity(newQtyBD.doubleValue());
                         asset.setAveragePrice(newAvgPrice);
                     }
+                    final BigDecimal fees = transaction.getFees() != null ? transaction.getFees() : BigDecimal.ZERO;
+                    asset.setAccumulatedFees(fees.add(transaction.getFees()));
+                    if("BUY".equals(transaction.getType())){
+                        final BigDecimal totalInvested = (asset.getTotalAmountInvested() != null) ? asset.getTotalAmountInvested() : BigDecimal.ZERO;
+                        asset.setTotalAmountInvested(totalInvested.add(transaction.getPrice().multiply(addedQtyBD)));
+                    }
+
+                    if("SELL".equals(transaction.getType())){
+                        final BigDecimal totalGainLost = (asset.getTotalGainLoss() != null) ? asset.getTotalGainLoss() : BigDecimal.ZERO;
+                        asset.setTotalGainLoss(totalGainLost.add(transaction.getPrice().multiply(addedQtyBD)));
+                    }
+
                     return assetRepository.save(asset);
         });
     }

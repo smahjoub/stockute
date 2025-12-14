@@ -1,6 +1,7 @@
 package com.smahjoub.stockute.application.port.asset.out;
 
 import com.smahjoub.stockute.domain.model.Asset;
+import com.smahjoub.stockute.domain.model.Transaction;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -14,5 +15,5 @@ public interface AssetPort {
 
     Mono<Asset> createAssetForPortfolio(String name, final Long portfolioId, final String ticker, final String exchange, Long currencyRefId);
 
-    Mono<Asset> updateAsset(Long assetId, double quantity, BigDecimal averagePrice);
+    Mono<Asset> updateAsset(Long assetId, Transaction transaction);
 }
