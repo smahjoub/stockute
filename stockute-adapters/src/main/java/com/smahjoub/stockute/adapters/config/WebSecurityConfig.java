@@ -42,7 +42,7 @@ public class WebSecurityConfig {
             .securityContextRepository(securityContextRepository)
             .authorizeExchange(authorizeExchangeSpec -> authorizeExchangeSpec
                 .pathMatchers(HttpMethod.OPTIONS).permitAll()
-                .pathMatchers("/authenticate").permitAll()
+                .pathMatchers("/v1/auth/authenticate").permitAll()
                 .pathMatchers("/actuator/**").permitAll()
                 .anyExchange().authenticated()
             )

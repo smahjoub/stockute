@@ -48,7 +48,7 @@ class AuthenticationControllerTest {
         when(userUseCase.authenticate(anyString(), anyString())).thenReturn(Mono.just(user));
         when(userMapper.toUserDTO(any())).thenReturn(null);
         when(jwtUtil.generateToken(any())).thenReturn("token");
-        webTestClient.post().uri("/authenticate")
+        webTestClient.post().uri("/v1/auth/authenticate")
                 .bodyValue(request)
                 .exchange()
                 .expectStatus().isOk();
@@ -58,7 +58,7 @@ class AuthenticationControllerTest {
     void testAuthenticateFailure() {
         AuthRequest request = new AuthRequest("test@example.com", "wrong");
         when(userUseCase.authenticate(anyString(), anyString())).thenReturn(Mono.empty());
-        webTestClient.post().uri("/authenticate")
+        webTestClient.post().uri("/v1/auth/authenticate")
                 .bodyValue(request)
                 .exchange()
                 .expectStatus().isEqualTo(HttpStatus.UNAUTHORIZED.value());

@@ -56,7 +56,7 @@ class PortfolioControllerTest {
         when(createPortfolioRecordMapper.toPortfolio(dto)).thenReturn(MockDomainObjects.PORTFOLIO_1);
         when(useCase.createPortfolio(anyString(), eq(MockDomainObjects.PORTFOLIO_1))).thenReturn(Mono.just(MockDomainObjects.PORTFOLIO_1));
         when(portfolioMapper.toPortfolioDTO(MockDomainObjects.PORTFOLIO_1)).thenReturn(MockDomainObjects.PORTFOLIO_DTO_1_MOCK);
-        webTestClient.post().uri("/portfolios")
+        webTestClient.post().uri("/v1/portfolios")
                 .bodyValue(dto)
                 .exchange()
                 .expectStatus().isOk();
@@ -67,7 +67,7 @@ class PortfolioControllerTest {
     void testGetPortfolio() {
         when(useCase.getUserPortfolio(anyString(), any())).thenReturn(Mono.just(MockDomainObjects.PORTFOLIO_1));
         when(portfolioMapper.toPortfolioDTO(MockDomainObjects.PORTFOLIO_1)).thenReturn(MockDomainObjects.PORTFOLIO_DTO_1_MOCK);
-        webTestClient.get().uri("/portfolios/1")
+        webTestClient.get().uri("/v1/portfolios/1")
                 .exchange()
                 .expectStatus().isOk();
     }
@@ -78,7 +78,7 @@ class PortfolioControllerTest {
         when(useCase.getAllUserPortfolios(anyString())).thenReturn(Flux.just(MockDomainObjects.PORTFOLIO_1, MockDomainObjects.PORTFOLIO_2));
         when(portfolioMapper.toPortfolioDTO(MockDomainObjects.PORTFOLIO_1)).thenReturn(MockDomainObjects.PORTFOLIO_DTO_1_MOCK);
         when(portfolioMapper.toPortfolioDTO(MockDomainObjects.PORTFOLIO_2)).thenReturn(MockDomainObjects.PORTFOLIO_DTO_2_MOCK);
-        webTestClient.get().uri("/portfolios")
+        webTestClient.get().uri("/v1/portfolios")
                 .exchange()
                 .expectStatus().isOk();
     }
@@ -87,7 +87,7 @@ class PortfolioControllerTest {
     @WithMockCustomUser
     void testDeletePortfolio() {
         when(useCase.removePortfolio(anyString(), any())).thenReturn(Mono.empty());
-        webTestClient.delete().uri("/portfolios/1")
+        webTestClient.delete().uri("/v1/portfolios/1")
                 .exchange()
                 .expectStatus().isOk();
     }
@@ -119,7 +119,7 @@ class PortfolioControllerTest {
         // Perform the request with mocked authentication (username: "testUser")
         webTestClient
                 .put()
-                .uri("/portfolios/1")
+                .uri("/v1/portfolios/1")
                 .header(HttpHeaders.IF_MATCH, "1")
                 .bodyValue(dto)
                 .exchange()

@@ -15,12 +15,13 @@ import reactor.core.publisher.Mono;
 @RestController
 @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('USER')")
 @AllArgsConstructor
+@RequestMapping("/v1/portfolios")
 public class TransactionController {
     private final CreateTransactionMapper createTransactionMapper;
     private final TransactionMapper transactionMapper;
     private final TransactionService transactionService;
 
-    @PostMapping("/portfolios/{portfolioId}/transactions")
+    @PostMapping("/{portfolioId}/transactions")
     public Mono<TransactionDTO> create(@PathVariable("portfolioId") final Long portfolioId, @RequestBody final CreateTransactionDTO createTransactionDTO) {
         return transactionService.createTransaction(createTransactionDTO.assetName(),
                         createTransactionDTO.ticker(), createTransactionDTO.exchange(),
@@ -28,7 +29,7 @@ public class TransactionController {
                 .map(transactionMapper::toDto);
     }
 
-    @GetMapping("/portfolios/{portfolioId}/assets/{assetId}/transactions")
+    @GetMapping("/{portfolioId}/assets/{assetId}/transactions")
     public Flux<TransactionDTO> getAllTransactionsForAssetInPortfolio(@PathVariable("portfolioId") final Long portfolioId,
                                                                       @PathVariable("assetId") final Long asserId) {
         return transactionService.getAllTransactionsForAssetInPortfolio(portfolioId, asserId)

@@ -17,7 +17,7 @@ import reactor.core.publisher.Mono;
 import static com.smahjoub.stockute.adapters.helper.AuthenticationHelper.getAuthenticatedUserName;
 
 @RestController
-@RequestMapping("/portfolios")
+@RequestMapping("/v1/portfolios")
 @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('USER')")
 @AllArgsConstructor
 public class PortfolioController {
