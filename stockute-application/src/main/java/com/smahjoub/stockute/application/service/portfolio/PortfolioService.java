@@ -58,7 +58,13 @@ public class PortfolioService implements PortfolioUseCase {
     @Override
     public Flux<Portfolio> getAllUserPortfolios(final String userName) {
         return userUseCase.getUserByUsername(userName)
-                .flatMapMany(user -> repository.findAllByUserRefId(user.getId()));
+                .flatMapMany(user -> repository.findAllByUserRefId(user.getId()).flatMap(portfolio ->
+                                currencyPort.findById(portfolio.getCurrencyRefId())
+                                        .map(currency -> {
+                                            portfolio.setCurrency(currency);
+                                            return portfolio;
+                                        })
+                        ));
     }
 
     @Override
