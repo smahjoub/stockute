@@ -4,6 +4,7 @@ import com.smahjoub.stockute.application.port.currency.out.CurrencyPort;
 import com.smahjoub.stockute.domain.model.Currency;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @AllArgsConstructor
@@ -13,5 +14,11 @@ public class CurrencyAdapter implements CurrencyPort {
     @Override
     public Mono<Currency> findById(Long id) {
         return currencyRepository.findById(id);
+    }
+
+
+    @Override
+    public Flux<Currency> findAll() {
+        return currencyRepository.findAll();
     }
 }

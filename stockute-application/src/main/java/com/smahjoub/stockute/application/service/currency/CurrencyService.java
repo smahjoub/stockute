@@ -5,6 +5,7 @@ import com.smahjoub.stockute.application.port.currency.out.CurrencyPort;
 import com.smahjoub.stockute.domain.model.Currency;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Service
@@ -15,5 +16,10 @@ public class CurrencyService implements CurrencyUseCase {
     public Mono<Currency> getCurrencyBYId(final Long id) {
         return currencyPort.findById(id)
                 .switchIfEmpty(Mono.error(new IllegalArgumentException("Currency not found with id: " + id)));
+    }
+
+    @Override
+    public Flux<Currency> getAllCurrencies() {
+        return currencyPort.findAll();
     }
 }
