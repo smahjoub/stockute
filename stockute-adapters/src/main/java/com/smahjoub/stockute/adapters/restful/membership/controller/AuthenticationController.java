@@ -26,7 +26,10 @@ public class AuthenticationController {
     @PostMapping("/authenticate")
     public Mono<ResponseEntity<AuthResponse>> authenticate(@RequestBody AuthRequest request) {
         return userUseCase.authenticate(request.email(), request.password())
-            .map(user -> ResponseEntity.ok(new AuthResponse(jwtUtil.generateToken(userMapper.toUserDTO(user)))))
+            .map(user ->{
+                final var useDto = userMapper.toUserDTO(user);
+                return ResponseEntity.ok(new AuthResponse(jwtUtil.generateToken(useDto), useDto));
+            } )
             .switchIfEmpty(Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()));
     }
 

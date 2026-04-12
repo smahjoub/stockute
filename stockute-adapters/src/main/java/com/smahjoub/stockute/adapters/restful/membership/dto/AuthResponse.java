@@ -1,4 +1,4 @@
 package com.smahjoub.stockute.adapters.restful.membership.dto;
 
-public record AuthResponse(String token) {
+public record AuthResponse(String token, UserDTO user) {
 }
