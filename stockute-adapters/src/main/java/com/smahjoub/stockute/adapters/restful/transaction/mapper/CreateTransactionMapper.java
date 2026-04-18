@@ -22,6 +22,9 @@ public abstract class CreateTransactionMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "portfolioRefId", ignore = true)
     @Mapping(target = "assetRefId", ignore = true)
+    @Mapping(target = "createdDate", ignore = true)
+    @Mapping(target = "lastModifiedDate", ignore = true)
+    @Mapping(target = "version", ignore = true)
     public abstract Transaction toDomain(CreateTransactionDTO dto);
 
 

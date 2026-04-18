@@ -24,6 +24,7 @@ public abstract class UpdatePortfolioRecordMapper {
     @Mapping(target = "currency", ignore = true)
     @Mapping(target = "createdDate", ignore = true)
     @Mapping(target = "lastModifiedDate", ignore = true)
+    @Mapping(target = "version", ignore = true)
     public abstract Portfolio toPortfolio(UpdatePortfolioDTO dto);
 
     @BeforeMapping
