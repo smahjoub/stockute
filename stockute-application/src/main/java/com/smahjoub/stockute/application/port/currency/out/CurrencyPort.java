@@ -9,4 +9,6 @@ public interface CurrencyPort {
     Mono<Currency> findById(Long id);
 
     Flux<Currency> findAll();
+
+    Mono<Currency> findByCode(String code);
 }

@@ -34,3 +34,6 @@ springbootwebfluxjjwt:
   jjwt:
     expiration: '148800'
     secret: 123qs345678HGGTFFHUJNGTsecret123345678HGGTFFHUJNGTqsdqsdZEza
+alphavantage:
+  # base-url:
+  # api-key: demo
