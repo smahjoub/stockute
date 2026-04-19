@@ -12,7 +12,7 @@ import reactor.core.publisher.Mono;
 public class CurrencyAdapter implements CurrencyPort {
     private final CurrencyRepository currencyRepository;
     @Override
-    public Mono<Currency> findById(Long id) {
+    public Mono<Currency> findById(final Long id) {
         return currencyRepository.findById(id);
     }
 
@@ -20,5 +20,10 @@ public class CurrencyAdapter implements CurrencyPort {
     @Override
     public Flux<Currency> findAll() {
         return currencyRepository.findAll();
+    }
+
+    @Override
+    public Mono<Currency> findByCode(final String code) {
+        return currencyRepository.findByCode(code);
     }
 }
