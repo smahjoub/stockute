@@ -20,5 +20,4 @@ public class SecurityDTO {
     private String type;
     private String region;
     private String currency;
-    private boolean active;
 }

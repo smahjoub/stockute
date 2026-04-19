@@ -66,11 +66,11 @@ class SecurityControllerTest {
 
         // DTOs
         SecurityDTO dto1 = new SecurityDTO(
-                1L, "AAPL", "Apple Inc", "Equity", "United States", "USD", true
+                1L, "AAPL", "Apple Inc", "Equity", "United States", "USD"
         );
 
         SecurityDTO dto2 = new SecurityDTO(
-                2L, "AAPL34", "Apple Inc ADR", "Equity", "Brazil", "BRL", true
+                2L, "AAPL34", "Apple Inc ADR", "Equity", "Brazil", "BRL"
         );
 
         when(searchSecurityUseCase.search(ticker))
