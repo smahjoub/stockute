@@ -8,5 +8,7 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface AssetMapper {
     @Mapping(source = "currency.code", target = "currency")
+    @Mapping(source = "security.symbol", target = "ticker")
+    @Mapping(source = "security.region", target = "region")
     AssetDTO toAssetDTO(Asset asset);
 }

@@ -5,7 +5,11 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface TransactionUseCase {
-    Mono<Transaction> createTransaction(String assetName, String assetTicker, String exchange, Transaction transaction, Long portfolioId);
 
-    Flux<Transaction> getAllTransactionsForAssetInPortfolio(final Long portfolioId, final Long asserId);
+    Mono<Transaction> createTransaction(String assetName,
+                                        Long securityRefId,
+                                        Transaction transaction,
+                                        Long portfolioId);
+
+    Flux<Transaction> getAllTransactionsForAssetInPortfolio(Long portfolioId, Long assetId);
 }

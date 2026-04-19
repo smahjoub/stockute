@@ -276,7 +276,7 @@ databaseChangeLog:
       author: smahjoub
       changes:
         - createTable:
-            tableName: assets
+            tableName: securities
             columns:
               - column:
                   name: id
@@ -286,15 +286,92 @@ databaseChangeLog:
                     primaryKey: true
                     nullable: false
               - column:
-                  name: ticker
+                  name: symbol
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: name
                   type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: type
+                  type: VARCHAR(100)
                   constraints:
                     nullable: true
               - column:
-                  name: exchange
-                  type: VARCHAR(255)
+                  name: region
+                  type: VARCHAR(100)
                   constraints:
                     nullable: true
+              - column:
+                  name: market_open
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: market_close
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: timezone
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: currency_ref_id
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+              - column:
+                  name: is_active
+                  type: BOOLEAN
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_date
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: true
+              - column:
+                  name: last_modified_date
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: true
+              - column:
+                  name: version
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+        - addForeignKeyConstraint:
+            baseTableName: securities
+            baseColumnNames: currency_ref_id
+            referencedTableName: currencies
+            referencedColumnNames: id
+            constraintName: fk_securities_currency
+            onDelete: SET NULL
+            onUpdate: CASCADE
+        - addUniqueConstraint:
+            tableName: securities
+            columnNames: symbol
+            constraintName: uk_securities_symbol
+  - changeSet:
+      id: 8
+      author: smahjoub
+      changes:
+        - createTable:
+            tableName: assets
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
               - column:
                   name: name
                   type: VARCHAR(255)
@@ -334,12 +411,17 @@ databaseChangeLog:
                   name: portfolio_ref_id
                   type: BIGINT
                   constraints:
-                    nullable: true
+                    nullable: false
               - column:
                   name: currency_ref_id
                   type: BIGINT
                   constraints:
-                    nullable: true
+                    nullable: false
+              - column:
+                  name: security_ref_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
               - column:
                   name: created_date
                   type: TIMESTAMP
@@ -371,8 +453,16 @@ databaseChangeLog:
             constraintName: fk_assets_currency
             onDelete: CASCADE
             onUpdate: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: assets
+            baseColumnNames: security_ref_id
+            referencedTableName: securities
+            referencedColumnNames: id
+            constraintName: fk_assets_security
+            onDelete: CASCADE
+            onUpdate: CASCADE
   - changeSet:
-      id: 8
+      id: 9
       author: smahjoub
       changes:
         - createTable:
@@ -457,7 +547,7 @@ databaseChangeLog:
             onDelete: CASCADE
             onUpdate: CASCADE
   - changeSet:
-      id: 9
+      id: 10
       author: smahjoub
       changes:
         - sqlFile:
@@ -465,7 +555,7 @@ databaseChangeLog:
             splitStatements: false
             path: db/initial-data/insert-roles.sql
   - changeSet:
-      id: 10
+      id: 11
       author: smahjoub
       changes:
         - sqlFile:
@@ -473,7 +563,7 @@ databaseChangeLog:
             splitStatements: false
             path: db/initial-data/insert-users.sql
   - changeSet:
-      id: 11
+      id: 12
       author: smahjoub
       changes:
         - sqlFile:
@@ -481,97 +571,10 @@ databaseChangeLog:
             splitStatements: false
             path: db/initial-data/insert-users-in-roles.sql
   - changeSet:
-      id: 12
+      id: 13
       author: smahjoub
       changes:
         - sqlFile:
             encoding: utf-8
             splitStatements: false
             path: db/initial-data/insert-default-currencies.sql
-  - changeSet:
-      id: 13
-      author: smahjoub
-      changes:
-        - createTable:
-            tableName: securities
-            columns:
-              - column:
-                  name: id
-                  type: BIGINT
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-                    nullable: false
-              - column:
-                  name: symbol
-                  type: VARCHAR(100)
-                  constraints:
-                    nullable: false
-              - column:
-                  name: name
-                  type: VARCHAR(255)
-                  constraints:
-                    nullable: false
-              - column:
-                  name: type
-                  type: VARCHAR(100)
-                  constraints:
-                    nullable: true
-              - column:
-                  name: region
-                  type: VARCHAR(100)
-                  constraints:
-                    nullable: true
-              - column:
-                  name: market_open
-                  type: VARCHAR(20)
-                  constraints:
-                    nullable: true
-              - column:
-                  name: market_close
-                  type: VARCHAR(20)
-                  constraints:
-                    nullable: true
-              - column:
-                  name: timezone
-                  type: VARCHAR(50)
-                  constraints:
-                    nullable: true
-              - column:
-                  name: currency_ref_id
-                  type: BIGINT
-                  constraints:
-                    nullable: true
-              - column:
-                  name: is_active
-                  type: BOOLEAN
-                  defaultValueBoolean: true
-                  constraints:
-                    nullable: false
-              - column:
-                  name: created_date
-                  type: TIMESTAMP
-                  constraints:
-                    nullable: true
-              - column:
-                  name: last_modified_date
-                  type: TIMESTAMP
-                  constraints:
-                    nullable: true
-              - column:
-                  name: version
-                  type: BIGINT
-                  constraints:
-                    nullable: true
-        - addForeignKeyConstraint:
-            baseTableName: securities
-            baseColumnNames: currency_ref_id
-            referencedTableName: currencies
-            referencedColumnNames: id
-            constraintName: fk_securities_currency
-            onDelete: SET NULL
-            onUpdate: CASCADE
-        - addUniqueConstraint:
-            tableName: securities
-            columnNames: symbol
-            constraintName: uk_securities_symbol

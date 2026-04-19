@@ -1,6 +1,8 @@
 package com.smahjoub.stockute.adapters.persistence.asset;
 
-import static org.mockito.ArgumentMatchers.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
 
 import java.math.BigDecimal;
@@ -18,7 +20,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-
 @ExtendWith(MockitoExtension.class)
 class AssetAdapterTest {
 
@@ -34,22 +35,21 @@ class AssetAdapterTest {
     void setUp() {
         testAsset = new Asset();
         testAsset.setId(100L);
+        testAsset.setName("Apple Inc.");
         testAsset.setPortfolioRefId(1L);
-        testAsset.setTicker("AAPL");
-        testAsset.setExchange("NASDAQ");
         testAsset.setCurrencyRefId(1L);
+        testAsset.setSecurityRefId(200L);
         testAsset.setQuantity(10.0);
         testAsset.setAveragePrice(BigDecimal.valueOf(100.00));
     }
 
     @Test
     void findAllByPortfolio_ReturnsAssets() {
-        // Given
         Asset asset2 = new Asset();
         asset2.setId(101L);
+
         when(assetRepository.findAllByPortfolio(1L)).thenReturn(Flux.just(testAsset, asset2));
 
-        // When & Then
         StepVerifier.create(assetAdapter.findAllByPortfolio(1L))
                 .expectNextCount(2)
                 .verifyComplete();
@@ -59,10 +59,8 @@ class AssetAdapterTest {
 
     @Test
     void findAllByPortfolio_NoAssets_ReturnsEmpty() {
-        // Given
         when(assetRepository.findAllByPortfolio(1L)).thenReturn(Flux.empty());
 
-        // When & Then
         StepVerifier.create(assetAdapter.findAllByPortfolio(1L))
                 .verifyComplete();
 
@@ -71,63 +69,59 @@ class AssetAdapterTest {
 
     @Test
     void getAssetForPortfolio_Found_ReturnsAsset() {
-        // Given
-        when(assetRepository.findByPortfolioIdAndTickerAndExchange(1L, "AAPL", "NASDAQ", 1L))
+        when(assetRepository.findByPortfolioIdAndSecurityRefIdAndCurrencyRefId(1L, 200L, 1L))
                 .thenReturn(Mono.just(testAsset));
 
-        // When & Then
-        StepVerifier.create(assetAdapter.getAssetForPortfolio(1L, "AAPL", "NASDAQ", 1L))
+        StepVerifier.create(assetAdapter.getAssetForPortfolioBySecurityRefId(1L, 200L, 1L))
                 .expectNext(testAsset)
                 .verifyComplete();
 
-        verify(assetRepository).findByPortfolioIdAndTickerAndExchange(1L, "AAPL", "NASDAQ", 1L);
+        verify(assetRepository).findByPortfolioIdAndSecurityRefIdAndCurrencyRefId(1L, 200L, 1L);
     }
 
     @Test
     void getAssetForPortfolio_NotFound_ReturnsEmpty() {
-        // Given
-        when(assetRepository.findByPortfolioIdAndTickerAndExchange(1L, "BTC", "BINANCE", 1L))
+        when(assetRepository.findByPortfolioIdAndSecurityRefIdAndCurrencyRefId(1L, 999L, 1L))
                 .thenReturn(Mono.empty());
 
-        // When & Then
-        StepVerifier.create(assetAdapter.getAssetForPortfolio(1L, "BTC", "BINANCE", 1L))
+        StepVerifier.create(assetAdapter.getAssetForPortfolioBySecurityRefId(1L, 999L, 1L))
                 .verifyComplete();
 
-        verify(assetRepository).findByPortfolioIdAndTickerAndExchange(1L, "BTC", "BINANCE", 1L);
+        verify(assetRepository).findByPortfolioIdAndSecurityRefIdAndCurrencyRefId(1L, 999L, 1L);
     }
 
     @Test
     void createAssetForPortfolio_CreatesNewAsset() {
-        // Given
         Asset newAsset = new Asset();
         newAsset.setId(200L);
         newAsset.setName("Bitcoin");
         newAsset.setPortfolioRefId(1L);
-        newAsset.setTicker("BTC");
-        newAsset.setExchange("BINANCE");
+        newAsset.setSecurityRefId(300L);
         newAsset.setCurrencyRefId(1L);
         newAsset.setQuantity(0.0);
         newAsset.setAveragePrice(BigDecimal.ZERO);
+
         when(assetRepository.save(any(Asset.class))).thenReturn(Mono.just(newAsset));
 
-        // When & Then
-        StepVerifier.create(assetAdapter.createAssetForPortfolio("Bitcoin", 1L, "BTC", "BINANCE", 1L))
+        StepVerifier.create(assetAdapter.createAssetForPortfolio("Bitcoin", 1L, 300L, 1L))
                 .assertNext(asset -> {
-                    assert asset.getName().equals("Bitcoin");
-                    assert asset.getQuantity() == 0.0;
-                    assert asset.getAveragePrice().equals(BigDecimal.ZERO);
+                    assertEquals("Bitcoin", asset.getName());
+                    assertEquals(0.0, asset.getQuantity());
+                    assertEquals(0, asset.getAveragePrice().compareTo(BigDecimal.ZERO));
                 })
                 .verifyComplete();
 
         verify(assetRepository).save(argThat(asset ->
                 asset.getName().equals("Bitcoin") &&
-                        asset.getTicker().equals("BTC") &&
-                        asset.getQuantity() == 0.0));
+                        asset.getSecurityRefId().equals(300L) &&
+                        asset.getCurrencyRefId().equals(1L) &&
+                        asset.getQuantity() == 0.0 &&
+                        asset.getAveragePrice().compareTo(BigDecimal.ZERO) == 0
+        ));
     }
 
     @Test
     void updateAsset_WithVariousTransactionTypesAndFees() {
-        // Given - Initial asset with quantity 10 and avg price 100, some accumulated fees and totals
         testAsset.setQuantity(10.0);
         testAsset.setAveragePrice(BigDecimal.valueOf(100));
         testAsset.setAccumulatedFees(BigDecimal.valueOf(5.0));
@@ -137,7 +131,6 @@ class AssetAdapterTest {
         when(assetRepository.findById(100L)).thenReturn(Mono.just(testAsset));
         when(assetRepository.save(any(Asset.class))).thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
 
-        // BUY transaction adding 5 units at price 150 with 2 fees
         Transaction buyTx = new Transaction();
         buyTx.setQuantity(5);
         buyTx.setPrice(BigDecimal.valueOf(150));
@@ -146,17 +139,19 @@ class AssetAdapterTest {
 
         StepVerifier.create(assetAdapter.updateAsset(100L, buyTx))
                 .assertNext(updated -> {
-                    assert updated.getQuantity() == 15.0;
-                    BigDecimal expectedAvgPrice = BigDecimal.valueOf(1000 + 750)
-                            .divide(BigDecimal.valueOf(15), 8, RoundingMode.HALF_UP);
-                    assert updated.getAveragePrice().compareTo(expectedAvgPrice) == 0;
+                    assertEquals(15.0, updated.getQuantity());
 
-                    assert updated.getTotalAmountInvested().compareTo(BigDecimal.valueOf(1750)) == 0;
-                    assert updated.getTotalGainLoss().compareTo(BigDecimal.valueOf(100)) == 0;
+                    BigDecimal expectedAvgPrice = BigDecimal.valueOf(1750)
+                            .divide(BigDecimal.valueOf(15), 8, RoundingMode.HALF_UP);
+                    assertEquals(0, updated.getAveragePrice().compareTo(expectedAvgPrice));
+
+                    assertEquals(0, updated.getTotalAmountInvested().compareTo(BigDecimal.valueOf(1750)));
+                    assertEquals(0, updated.getTotalGainLoss().compareTo(BigDecimal.valueOf(100)));
+
+                    assertEquals(0, updated.getAccumulatedFees().compareTo(BigDecimal.valueOf(4)));
                 })
                 .verifyComplete();
 
-        // Reset testAsset state independently for SELL
         Asset sellTestAsset = new Asset();
         sellTestAsset.setId(100L);
         sellTestAsset.setQuantity(10.0);
@@ -167,7 +162,6 @@ class AssetAdapterTest {
 
         when(assetRepository.findById(100L)).thenReturn(Mono.just(sellTestAsset));
 
-        // SELL transaction subtracting 3 units at price 160 with 1 fees
         Transaction sellTx = new Transaction();
         sellTx.setQuantity(3);
         sellTx.setPrice(BigDecimal.valueOf(160));
@@ -176,14 +170,19 @@ class AssetAdapterTest {
 
         StepVerifier.create(assetAdapter.updateAsset(100L, sellTx))
                 .assertNext(updated -> {
-                    assert updated.getQuantity() == 7.0;
-                    assert updated.getTotalAmountInvested().compareTo(BigDecimal.valueOf(1000)) == 0;
-                    assert updated.getTotalGainLoss().compareTo(BigDecimal.valueOf(580)) == 0;
+                    assertEquals(7.0, updated.getQuantity());
+
+                    BigDecimal expectedAvgPrice = BigDecimal.valueOf(1000 + 480)
+                            .divide(BigDecimal.valueOf(7), 8, RoundingMode.HALF_UP);
+                    assertEquals(0, updated.getAveragePrice().compareTo(expectedAvgPrice));
+
+                    assertEquals(0, updated.getTotalAmountInvested().compareTo(BigDecimal.valueOf(1000)));
+                    assertEquals(0, updated.getTotalGainLoss().compareTo(BigDecimal.valueOf(580)));
+                    assertEquals(0, updated.getAccumulatedFees().compareTo(BigDecimal.valueOf(2)));
                 })
                 .verifyComplete();
 
         verify(assetRepository, times(2)).findById(100L);
         verify(assetRepository, times(2)).save(any(Asset.class));
     }
-
 }

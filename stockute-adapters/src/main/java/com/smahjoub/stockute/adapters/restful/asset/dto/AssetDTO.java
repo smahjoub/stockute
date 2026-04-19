@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 public record AssetDTO(
         Long id,
         String ticker,
-        String exchange,
+        String region,
         String name,
         double quantity,
         BigDecimal averagePrice,

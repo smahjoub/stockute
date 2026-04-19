@@ -16,10 +16,6 @@ import java.math.BigDecimal;
 public class Asset extends Entity {
     @Id
     private Long id;
-    @Column("ticker")
-    private String ticker;
-    @Column("exchange")
-    private String exchange;
     @Column("name")
     private String name;
     @Column("quantity")
@@ -30,6 +26,8 @@ public class Asset extends Entity {
     private Long portfolioRefId;
     @Column("currency_ref_id")
     private Long currencyRefId;
+    @Column("security_ref_id")
+    private Long securityRefId;
     @Transient
     private Currency currency;
     @Column("accumulated_fees")
@@ -40,4 +38,6 @@ public class Asset extends Entity {
     private BigDecimal totalGainLoss;
     @Column("total_amount_invested")
     private BigDecimal totalAmountInvested;
+    @Transient
+    private Security security;
 }

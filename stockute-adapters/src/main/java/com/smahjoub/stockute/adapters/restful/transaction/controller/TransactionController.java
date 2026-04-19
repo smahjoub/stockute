@@ -22,10 +22,14 @@ public class TransactionController {
     private final TransactionService transactionService;
 
     @PostMapping("/{portfolioId}/transactions")
-    public Mono<TransactionDTO> create(@PathVariable("portfolioId") final Long portfolioId, @RequestBody final CreateTransactionDTO createTransactionDTO) {
-        return transactionService.createTransaction(createTransactionDTO.assetName(),
-                        createTransactionDTO.ticker(), createTransactionDTO.exchange(),
-                        createTransactionMapper.toDomain(createTransactionDTO), portfolioId)
+    public Mono<TransactionDTO> create(@PathVariable("portfolioId") final Long portfolioId,
+                                       @RequestBody final CreateTransactionDTO createTransactionDTO) {
+        return transactionService.createTransaction(
+                        createTransactionDTO.assetName(),
+                        createTransactionDTO.securityRefId(),
+                        createTransactionMapper.toDomain(createTransactionDTO),
+                        portfolioId
+                )
                 .map(transactionMapper::toDto);
     }
 

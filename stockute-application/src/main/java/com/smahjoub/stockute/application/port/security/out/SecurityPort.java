@@ -9,4 +9,5 @@ public interface SecurityPort {
     Mono<Security> findBySymbol(String symbol);
     Mono<Security> save(Security security);
     Flux<Security> saveAll(Flux<Security> securities);
+    Mono<Security> findById(Long securityId);
 }

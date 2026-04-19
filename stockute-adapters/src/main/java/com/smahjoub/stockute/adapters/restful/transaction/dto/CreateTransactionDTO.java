@@ -5,10 +5,9 @@ import java.time.LocalDateTime;
 
 public record CreateTransactionDTO(
         String assetName,
-        String ticker,
-        String exchange,
         double quantity,
         Long currencyRefId,
+        Long securityRefId,
         BigDecimal price,
         BigDecimal fees,
         String notes,

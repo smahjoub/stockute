@@ -23,17 +23,16 @@ public class AssetAdapter implements AssetPort {
     }
 
     @Override
-    public Mono<Asset> getAssetForPortfolio(final Long portfolioId, final String ticker, final String exchange, final Long currencyRefId) {
-        return assetRepository.findByPortfolioIdAndTickerAndExchange(portfolioId, ticker, exchange, currencyRefId);
+    public Mono<Asset> getAssetForPortfolioBySecurityRefId(final Long portfolioId, final Long securityRefId, final Long currencyRefId) {
+        return assetRepository.findByPortfolioIdAndSecurityRefIdAndCurrencyRefId(portfolioId, securityRefId, currencyRefId);
     }
 
     @Override
-    public Mono<Asset> createAssetForPortfolio(final String name, final Long portfolioId, final String ticker, final String exchange, final Long currencyRefId) {
+    public  Mono<Asset> createAssetForPortfolio(final String name, final Long portfolioId, final Long securityRefId, Long currencyRefId) {
         final Asset asset = new Asset();
         asset.setName(name);
         asset.setPortfolioRefId(portfolioId);
-        asset.setTicker(ticker);
-        asset.setExchange(exchange);
+        asset.setSecurityRefId(securityRefId);
         asset.setCurrencyRefId(currencyRefId);
         asset.setQuantity(0.0d);
         asset.setAveragePrice(BigDecimal.ZERO);

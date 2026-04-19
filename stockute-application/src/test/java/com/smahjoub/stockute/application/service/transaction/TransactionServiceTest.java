@@ -1,17 +1,21 @@
 package com.smahjoub.stockute.application.service.transaction;
 
-import static org.mockito.ArgumentMatchers.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import com.smahjoub.stockute.application.exception.PortfolioNotFoundException;
+import com.smahjoub.stockute.application.exception.SecurityNotFoundException;
 import com.smahjoub.stockute.application.port.asset.out.AssetPort;
 import com.smahjoub.stockute.application.port.portfolio.out.PortfolioPort;
+import com.smahjoub.stockute.application.port.security.out.SecurityPort;
 import com.smahjoub.stockute.application.port.transaction.out.TransactionPort;
 import com.smahjoub.stockute.domain.model.Asset;
 import com.smahjoub.stockute.domain.model.Portfolio;
+import com.smahjoub.stockute.domain.model.Security;
 import com.smahjoub.stockute.domain.model.Transaction;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,12 +39,16 @@ class TransactionServiceTest {
     @Mock
     private AssetPort assetPort;
 
+    @Mock
+    private SecurityPort securityPort;
+
     @InjectMocks
     private TransactionService transactionService;
 
     private Portfolio portfolio;
     private Asset asset;
     private Transaction transaction;
+    private Security security;
 
     @BeforeEach
     void setUp() {
@@ -50,6 +58,9 @@ class TransactionServiceTest {
 
         asset = new Asset();
         asset.setId(100L);
+
+        security = new Security();
+        security.setId(200L);
 
         transaction = new Transaction();
         transaction.setQuantity(10.0);
@@ -61,100 +72,106 @@ class TransactionServiceTest {
 
     @Test
     void createTransaction_AssetExists_UpdatesAndSavesTransaction() {
-        // Given
         when(portfolioPort.findById(1L)).thenReturn(Mono.just(portfolio));
-        when(assetPort.getAssetForPortfolio(eq(1L), eq("BTC"), eq("BINANCE"), eq(1L)))
-                .thenReturn(Mono.just(asset)); // Called 2x - service logic requires it
-
-        when(assetPort.createAssetForPortfolio("Bitcoin", 1L, "BTC", "BINANCE", 1L))
+        when(securityPort.findById(200L)).thenReturn(Mono.just(security));
+        when(assetPort.getAssetForPortfolioBySecurityRefId(1L, 200L, 1L))
                 .thenReturn(Mono.just(asset));
+
         when(assetPort.updateAsset(eq(100L), any(Transaction.class)))
                 .thenReturn(Mono.just(asset));
-        when(transactionPort.save(any(Transaction.class))).thenReturn(Mono.just(transaction));
+        when(transactionPort.save(any(Transaction.class)))
+                .thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
 
-        // When & Then
         StepVerifier.create(
-                        transactionService.createTransaction("Bitcoin", "BTC", "BINANCE", transaction, 1L)
+                        transactionService.createTransaction("Bitcoin", 200L, transaction, 1L)
                 )
                 .assertNext(result -> {
-                    assert result.getAssetRefId() == 100L;
-                    assert result.getPortfolioRefId() == 1L;
+                    assertEquals(100L, result.getAssetRefId());
+                    assertEquals(1L, result.getPortfolioRefId());
                 })
                 .verifyComplete();
 
         verify(portfolioPort).findById(1L);
-        verify(assetPort, times(2)).getAssetForPortfolio(1L, "BTC", "BINANCE", 1L); // Expect 2 calls
-        verify(assetPort).updateAsset(eq(100L), any(Transaction.class));
-        verify(transactionPort).save(any(Transaction.class));
-        verifyNoMoreInteractions(assetPort, transactionPort, portfolioPort);
+        verify(securityPort).findById(200L);
+        verify(assetPort).getAssetForPortfolioBySecurityRefId(1L, 200L, 1L);
+        verify(assetPort).updateAsset(100L, transaction);
+        verify(transactionPort).save(transaction);
     }
-
 
     @Test
     void createTransaction_AssetNotExists_CreatesThenUpdatesAndSaves() {
-        // Given
         when(portfolioPort.findById(1L)).thenReturn(Mono.just(portfolio));
+        when(securityPort.findById(200L)).thenReturn(Mono.just(security));
 
-        // After creation, re-query must return the created asset
-        when(assetPort.getAssetForPortfolio(eq(1L), eq("BTC"), eq("BINANCE"), eq(1L)))
-                .thenReturn(Mono.empty())      // First call
-                .thenReturn(Mono.just(asset)); // Second call after creation
+        when(assetPort.getAssetForPortfolioBySecurityRefId(1L, 200L, 1L))
+                .thenReturn(Mono.empty())
+                .thenReturn(Mono.just(asset));
 
-        when(assetPort.createAssetForPortfolio("Bitcoin", 1L, "BTC", "BINANCE", 1L))
+        when(assetPort.createAssetForPortfolio("Bitcoin", 1L, 200L, 1L))
                 .thenReturn(Mono.just(asset));
 
         when(assetPort.updateAsset(eq(100L), any(Transaction.class)))
                 .thenReturn(Mono.just(asset));
 
         when(transactionPort.save(any(Transaction.class)))
-                .thenReturn(Mono.just(transaction));
+                .thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
 
-        // When & Then
         StepVerifier.create(
-                        transactionService.createTransaction("Bitcoin", "BTC", "BINANCE", transaction, 1L)
+                        transactionService.createTransaction("Bitcoin", 200L, transaction, 1L)
                 )
                 .assertNext(result -> {
-                    assert result.getAssetRefId() == 100L;
-                    assert result.getPortfolioRefId() == 1L;
+                    assertEquals(100L, result.getAssetRefId());
+                    assertEquals(1L, result.getPortfolioRefId());
                 })
                 .verifyComplete();
 
         verify(portfolioPort).findById(1L);
-        verify(assetPort, times(2)).getAssetForPortfolio(1L, "BTC", "BINANCE", 1L);
-        verify(assetPort).createAssetForPortfolio("Bitcoin", 1L, "BTC", "BINANCE", 1L);
-        verify(assetPort).updateAsset(eq(100L), any(Transaction.class));
-        verify(transactionPort).save(any(Transaction.class));
-        verifyNoMoreInteractions(assetPort, transactionPort, portfolioPort);
+        verify(securityPort).findById(200L);
+        verify(assetPort, times(2)).getAssetForPortfolioBySecurityRefId(1L, 200L, 1L);
+        verify(assetPort).createAssetForPortfolio("Bitcoin", 1L, 200L, 1L);
+        verify(assetPort).updateAsset(100L, transaction);
+        verify(transactionPort).save(transaction);
+        verifyNoMoreInteractions(portfolioPort, securityPort, assetPort, transactionPort);
     }
 
     @Test
     void createTransaction_PortfolioNotFound_ErrorsWithPortfolioNotFoundException() {
-        // Given
         when(portfolioPort.findById(999L)).thenReturn(Mono.empty());
 
-        // When & Then
         StepVerifier.create(
-                        transactionService.createTransaction("Test", "TEST", "TESTEX", transaction, 999L)
+                        transactionService.createTransaction("Test", 200L, transaction, 999L)
                 )
-                .expectErrorMatches(throwable ->
-                        throwable instanceof PortfolioNotFoundException
-                                || throwable.getCause() instanceof PortfolioNotFoundException
-                )
+                .expectError(PortfolioNotFoundException.class)
                 .verify();
 
         verify(portfolioPort).findById(999L);
+        verifyNoInteractions(securityPort, assetPort, transactionPort);
+    }
+
+    @Test
+    void createTransaction_SecurityNotFound_ErrorsWithSecurityNotFoundException() {
+        when(portfolioPort.findById(1L)).thenReturn(Mono.just(portfolio));
+        when(securityPort.findById(999L)).thenReturn(Mono.empty());
+
+        StepVerifier.create(
+                        transactionService.createTransaction("Test", 999L, transaction, 1L)
+                )
+                .expectError(SecurityNotFoundException.class)
+                .verify();
+
+        verify(portfolioPort).findById(1L);
+        verify(securityPort).findById(999L);
         verifyNoInteractions(assetPort, transactionPort);
     }
 
     @Test
     void getAllTransactionsForAssetInPortfolio_ReturnsTransactions() {
-        // Given
         Transaction tx1 = new Transaction();
         Transaction tx2 = new Transaction();
+
         when(transactionPort.findAllByPortfolioIdAndAssetId(1L, 100L))
                 .thenReturn(Flux.just(tx1, tx2));
 
-        // When & Then
         StepVerifier.create(
                         transactionService.getAllTransactionsForAssetInPortfolio(1L, 100L)
                 )
@@ -167,10 +184,9 @@ class TransactionServiceTest {
 
     @Test
     void getAllTransactionsForAssetInPortfolio_NoTransactions_ReturnsEmpty() {
-        // Given
-        when(transactionPort.findAllByPortfolioIdAndAssetId(1L, 100L)).thenReturn(Flux.empty());
+        when(transactionPort.findAllByPortfolioIdAndAssetId(1L, 100L))
+                .thenReturn(Flux.empty());
 
-        // When & Then
         StepVerifier.create(
                         transactionService.getAllTransactionsForAssetInPortfolio(1L, 100L)
                 )

@@ -10,9 +10,9 @@ public interface AssetPort {
 
     Flux<Asset> findAllByPortfolio(final Long portfolioId);
 
-    Mono<Asset> getAssetForPortfolio(final Long portfolioId, final String ticker, final String exchange, Long currencyRefId);
+    Mono<Asset> getAssetForPortfolioBySecurityRefId(final Long portfolioId, final Long securityRefId, final Long currencyRefId);
 
-    Mono<Asset> createAssetForPortfolio(String name, final Long portfolioId, final String ticker, final String exchange, Long currencyRefId);
+    Mono<Asset> createAssetForPortfolio(String name, final Long portfolioId, final Long securityRefId, Long currencyRefId);
 
     Mono<Asset> updateAsset(Long assetId, Transaction transaction);
 }
