@@ -132,7 +132,7 @@ class AssetAdapterTest {
         when(assetRepository.save(any(Asset.class))).thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
 
         Transaction buyTx = new Transaction();
-        buyTx.setQuantity(5);
+        buyTx.setQuantity(BigDecimal.valueOf(5));
         buyTx.setPrice(BigDecimal.valueOf(150));
         buyTx.setFees(BigDecimal.valueOf(2));
         buyTx.setType("BUY");
@@ -163,7 +163,7 @@ class AssetAdapterTest {
         when(assetRepository.findById(100L)).thenReturn(Mono.just(sellTestAsset));
 
         Transaction sellTx = new Transaction();
-        sellTx.setQuantity(3);
+        sellTx.setQuantity(BigDecimal.valueOf(3));
         sellTx.setPrice(BigDecimal.valueOf(160));
         sellTx.setFees(BigDecimal.valueOf(1));
         sellTx.setType("SELL");

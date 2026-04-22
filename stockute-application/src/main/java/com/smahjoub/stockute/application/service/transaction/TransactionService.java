@@ -56,6 +56,8 @@ public class TransactionService implements TransactionUseCase {
                                                 .flatMap(asset -> {
                                                     transaction.setAssetRefId(asset.getId());
                                                     transaction.setPortfolioRefId(portfolioId);
+                                                    transaction.setSecurityRefId(securityRefId);
+                                                    transaction.setCurrencyRefId(transaction.getCurrencyRefId());
                                                     return transactionPort.save(transaction);
                                                 })
                                 )

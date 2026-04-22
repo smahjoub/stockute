@@ -45,7 +45,7 @@ public class AssetAdapter implements AssetPort {
                 .flatMap(asset -> {
                     final BigDecimal currentPrice = asset.getAveragePrice() == null ? BigDecimal.ZERO : asset.getAveragePrice();
                     final BigDecimal currentQtyBD = BigDecimal.valueOf(asset.getQuantity());
-                    final BigDecimal addedQtyBD = BigDecimal.valueOf(transaction.getQuantity());
+                    final BigDecimal addedQtyBD = transaction.getQuantity();
                     final BigDecimal newQtyBD = "BUY".equals(transaction.getType()) ? currentQtyBD.add(addedQtyBD) : currentQtyBD.subtract(addedQtyBD);
 
                     if (newQtyBD.compareTo(BigDecimal.ZERO) <= 0) {

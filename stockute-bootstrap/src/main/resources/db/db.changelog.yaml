@@ -479,40 +479,102 @@ databaseChangeLog:
                   name: portfolio_ref_id
                   type: BIGINT
                   constraints:
-                    nullable: true
+                    nullable: false
               - column:
                   name: asset_ref_id
                   type: BIGINT
                   constraints:
                     nullable: true
               - column:
-                  name: type
-                  type: VARCHAR(255)
+                  name: security_ref_id
+                  type: BIGINT
                   constraints:
                     nullable: true
               - column:
-                  name: quantity
-                  type: DOUBLE
+                  name: type
+                  type: VARCHAR(50)
                   constraints:
                     nullable: false
               - column:
+                  name: quantity
+                  type: DECIMAL(19,6)
+                  constraints:
+                    nullable: true
+              - column:
                   name: price
-                  type: DECIMAL(19,4)
+                  type: DECIMAL(19,6)
                   constraints:
                     nullable: true
               - column:
                   name: fees
                   type: DECIMAL(19,4)
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+              - column:
+                  name: gross_amount
+                  type: DECIMAL(19,4)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: tax_amount
+                  type: DECIMAL(19,4)
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: true
+              - column:
+                  name: net_amount
+                  type: DECIMAL(19,4)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: currency_ref_id
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+              - column:
+                  name: fx_rate
+                  type: DECIMAL(19,8)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: amount_in_portfolio_currency
+                  type: DECIMAL(19,4)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: dividend_per_share
+                  type: DECIMAL(19,8)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: shares_held_on_record_date
+                  type: DECIMAL(19,6)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: record_date
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: true
+              - column:
+                  name: payment_date
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: true
+              - column:
+                  name: related_transaction_id
+                  type: BIGINT
                   constraints:
                     nullable: true
               - column:
                   name: transaction_date
                   type: TIMESTAMP
                   constraints:
-                    nullable: true
+                    nullable: false
               - column:
                   name: notes
-                  type: VARCHAR(255)
+                  type: VARCHAR(500)
                   constraints:
                     nullable: true
               - column:
@@ -546,6 +608,68 @@ databaseChangeLog:
             constraintName: fk_transactions_asset
             onDelete: CASCADE
             onUpdate: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: transactions
+            baseColumnNames: security_ref_id
+            referencedTableName: securities
+            referencedColumnNames: id
+            constraintName: fk_transactions_security
+            onDelete: SET NULL
+            onUpdate: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: transactions
+            baseColumnNames: currency_ref_id
+            referencedTableName: currencies
+            referencedColumnNames: id
+            constraintName: fk_transactions_currency
+            onDelete: SET NULL
+            onUpdate: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: transactions
+            baseColumnNames: related_transaction_id
+            referencedTableName: transactions
+            referencedColumnNames: id
+            constraintName: fk_transactions_related_transaction
+            onDelete: SET NULL
+            onUpdate: CASCADE
+        - createIndex:
+            tableName: transactions
+            indexName: idx_transactions_portfolio_date
+            columns:
+              - column:
+                  name: portfolio_ref_id
+              - column:
+                  name: transaction_date
+        - createIndex:
+            tableName: transactions
+            indexName: idx_transactions_security_date
+            columns:
+              - column:
+                  name: security_ref_id
+              - column:
+                  name: transaction_date
+        - createIndex:
+            tableName: transactions
+            indexName: idx_transactions_type_date
+            columns:
+              - column:
+                  name: type
+              - column:
+                  name: transaction_date
+        - createIndex:
+            tableName: transactions
+            indexName: idx_transactions_asset_date
+            columns:
+              - column:
+                  name: asset_ref_id
+              - column:
+                  name: transaction_date
+        - createIndex:
+            tableName: transactions
+            indexName: idx_transactions_payment_date
+            columns:
+              - column:
+                  name: payment_date
   - changeSet:
       id: 10
       author: smahjoub

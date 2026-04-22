@@ -63,7 +63,7 @@ class TransactionServiceTest {
         security.setId(200L);
 
         transaction = new Transaction();
-        transaction.setQuantity(10.0);
+        transaction.setQuantity(BigDecimal.valueOf(10.0));
         transaction.setPrice(BigDecimal.valueOf(100.0));
         transaction.setFees(BigDecimal.valueOf(1.0));
         transaction.setType("BUY");
