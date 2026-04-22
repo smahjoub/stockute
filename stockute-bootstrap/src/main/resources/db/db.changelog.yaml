@@ -702,3 +702,287 @@ databaseChangeLog:
             encoding: utf-8
             splitStatements: false
             path: db/initial-data/insert-default-currencies.sql
+  - changeSet:
+      id: 14
+      author: smahjoub
+      changes:
+        - createTable:
+            tableName: security_dividends
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_security_dividends
+                    nullable: false
+              - column:
+                  name: security_ref_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: dividend_type
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: ex_date
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: true
+              - column:
+                  name: record_date
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: true
+              - column:
+                  name: payment_date
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: true
+              - column:
+                  name: dividend_per_share
+                  type: DECIMAL(19,8)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: currency_ref_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: declared_date
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: true
+              - column:
+                  name: source
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: notes
+                  type: VARCHAR(500)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: created_date
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: true
+              - column:
+                  name: last_modified_date
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: true
+              - column:
+                  name: version
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+        - addForeignKeyConstraint:
+            baseTableName: security_dividends
+            baseColumnNames: security_ref_id
+            referencedTableName: securities
+            referencedColumnNames: id
+            constraintName: fk_security_dividends_security
+            onDelete: CASCADE
+            onUpdate: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: security_dividends
+            baseColumnNames: currency_ref_id
+            referencedTableName: currencies
+            referencedColumnNames: id
+            constraintName: fk_security_dividends_currency
+            onDelete: RESTRICT
+            onUpdate: CASCADE
+        - createIndex:
+            tableName: security_dividends
+            indexName: idx_security_dividends_security
+            columns:
+              - column:
+                  name: security_ref_id
+        - createIndex:
+            tableName: security_dividends
+            indexName: idx_security_dividends_ex_date
+            columns:
+              - column:
+                  name: ex_date
+        - createIndex:
+            tableName: security_dividends
+            indexName: idx_security_dividends_payment_date
+            columns:
+              - column:
+                  name: payment_date
+        - createIndex:
+            tableName: security_dividends
+            indexName: idx_security_dividends_status
+            columns:
+              - column:
+                  name: status
+        - createIndex:
+            tableName: security_dividends
+            indexName: idx_security_dividends_security_status
+            columns:
+              - column:
+                  name: security_ref_id
+              - column:
+                  name: status
+        - addUniqueConstraint:
+            tableName: security_dividends
+            columnNames: security_ref_id, ex_date, payment_date, dividend_per_share
+            constraintName: uk_security_dividends_security_ex_payment_amount
+  - changeSet:
+      id: 15
+      author: smahjoub
+      changes:
+        - createTable:
+            tableName: portfolio_dividend_entitlements
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_portfolio_dividend_entitlements
+                    nullable: false
+              - column:
+                  name: portfolio_ref_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: asset_ref_id
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+              - column:
+                  name: security_dividend_ref_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: security_ref_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: eligible_shares
+                  type: DECIMAL(19,6)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: dividend_per_share
+                  type: DECIMAL(19,8)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: gross_amount
+                  type: DECIMAL(19,4)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: currency_ref_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: ex_date
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: true
+              - column:
+                  name: payment_date
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: true
+              - column:
+                  name: status
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_date
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: true
+              - column:
+                  name: last_modified_date
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: true
+              - column:
+                  name: version
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+        - addForeignKeyConstraint:
+            baseTableName: portfolio_dividend_entitlements
+            baseColumnNames: portfolio_ref_id
+            referencedTableName: portfolios
+            referencedColumnNames: id
+            constraintName: fk_portfolio_dividend_entitlements_portfolio
+            onDelete: CASCADE
+            onUpdate: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: portfolio_dividend_entitlements
+            baseColumnNames: asset_ref_id
+            referencedTableName: assets
+            referencedColumnNames: id
+            constraintName: fk_portfolio_dividend_entitlements_asset
+            onDelete: SET NULL
+            onUpdate: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: portfolio_dividend_entitlements
+            baseColumnNames: security_dividend_ref_id
+            referencedTableName: security_dividends
+            referencedColumnNames: id
+            constraintName: fk_portfolio_dividend_entitlements_security_dividend
+            onDelete: CASCADE
+            onUpdate: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: portfolio_dividend_entitlements
+            baseColumnNames: security_ref_id
+            referencedTableName: securities
+            referencedColumnNames: id
+            constraintName: fk_portfolio_dividend_entitlements_security
+            onDelete: CASCADE
+            onUpdate: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: portfolio_dividend_entitlements
+            baseColumnNames: currency_ref_id
+            referencedTableName: currencies
+            referencedColumnNames: id
+            constraintName: fk_portfolio_dividend_entitlements_currency
+            onDelete: RESTRICT
+            onUpdate: CASCADE
+        - createIndex:
+            tableName: portfolio_dividend_entitlements
+            indexName: idx_portfolio_dividend_entitlements_portfolio
+            columns:
+              - column:
+                  name: portfolio_ref_id
+        - createIndex:
+            tableName: portfolio_dividend_entitlements
+            indexName: idx_portfolio_dividend_entitlements_payment_date
+            columns:
+              - column:
+                  name: payment_date
+        - createIndex:
+            tableName: portfolio_dividend_entitlements
+            indexName: idx_portfolio_dividend_entitlements_security_dividend
+            columns:
+              - column:
+                  name: security_dividend_ref_id
+        - addUniqueConstraint:
+            tableName: portfolio_dividend_entitlements
+            columnNames: portfolio_ref_id, security_dividend_ref_id
+            constraintName: uk_portfolio_dividend_entitlements_portfolio_dividend

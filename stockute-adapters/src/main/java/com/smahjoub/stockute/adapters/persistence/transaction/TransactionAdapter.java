@@ -8,6 +8,8 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalDateTime;
+
 @Component
 @AllArgsConstructor(access = AccessLevel.PUBLIC)
 public class TransactionAdapter implements TransactionPort {
@@ -20,5 +22,10 @@ public class TransactionAdapter implements TransactionPort {
     @Override
     public Flux<Transaction> findAllByPortfolioIdAndAssetId(Long portfolioId, Long assetId) {
         return transactionRepository.findAllByPortfolioIdAndAssetId(portfolioId, assetId);
+    }
+
+    @Override
+    public Flux<Transaction> findAllByAssetRefIdAndTransactionDateLessThanEqual(Long assetRefId, LocalDateTime date) {
+        return transactionRepository.findAllByAssetRefIdAndTransactionDateLessThanEqual(assetRefId, date);
     }
 }

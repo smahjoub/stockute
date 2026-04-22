@@ -15,4 +15,6 @@ public interface AssetPort {
     Mono<Asset> createAssetForPortfolio(String name, final Long portfolioId, final Long securityRefId, Long currencyRefId);
 
     Mono<Asset> updateAsset(Long assetId, Transaction transaction);
+
+    Flux<Asset> findAllBySecurityRefId(Long securityRefId);
 }

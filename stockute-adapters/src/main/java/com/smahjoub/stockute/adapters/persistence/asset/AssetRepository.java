@@ -18,4 +18,6 @@ public interface AssetRepository extends R2dbcRepository<Asset, Long>  {
 
     @Query("SELECT * FROM assets WHERE portfolio_ref_id = :portfolioId")
     Flux<Asset> findAllByPortfolio(Long portfolioId);
+
+    Flux<Asset> findAllBySecurityRefId(Long securityRefId);
 }

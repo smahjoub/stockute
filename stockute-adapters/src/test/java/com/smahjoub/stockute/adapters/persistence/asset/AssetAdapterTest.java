@@ -185,4 +185,31 @@ class AssetAdapterTest {
         verify(assetRepository, times(2)).findById(100L);
         verify(assetRepository, times(2)).save(any(Asset.class));
     }
+
+    @Test
+    void findAllBySecurityRefId_ReturnsAssets() {
+        Asset asset2 = new Asset();
+        asset2.setId(101L);
+        asset2.setSecurityRefId(200L);
+
+        when(assetRepository.findAllBySecurityRefId(200L))
+                .thenReturn(Flux.just(testAsset, asset2));
+
+        StepVerifier.create(assetAdapter.findAllBySecurityRefId(200L))
+                .expectNext(testAsset, asset2)
+                .verifyComplete();
+
+        verify(assetRepository).findAllBySecurityRefId(200L);
+    }
+
+    @Test
+    void findAllBySecurityRefId_NoAssets_ReturnsEmpty() {
+        when(assetRepository.findAllBySecurityRefId(200L))
+                .thenReturn(Flux.empty());
+
+        StepVerifier.create(assetAdapter.findAllBySecurityRefId(200L))
+                .verifyComplete();
+
+        verify(assetRepository).findAllBySecurityRefId(200L);
+    }
 }

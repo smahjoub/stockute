@@ -6,6 +6,8 @@ import org.springframework.data.r2dbc.repository.R2dbcRepository;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 
+import java.time.LocalDateTime;
+
 @Repository
 public interface TransactionRepository extends R2dbcRepository<Transaction, Long> {
 
@@ -18,4 +20,7 @@ public interface TransactionRepository extends R2dbcRepository<Transaction, Long
      */
     @Query("SELECT * FROM transactions WHERE portfolio_ref_id = :portfolioId AND asset_ref_id = :assetId")
     Flux<Transaction> findAllByPortfolioIdAndAssetId(Long portfolioId, Long assetId);
+
+    Flux<Transaction> findAllByAssetRefIdAndTransactionDateLessThanEqual(Long assetRefId, LocalDateTime date);
+
 }

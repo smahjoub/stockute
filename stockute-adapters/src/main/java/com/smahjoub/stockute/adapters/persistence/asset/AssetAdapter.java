@@ -75,4 +75,9 @@ public class AssetAdapter implements AssetPort {
                     return assetRepository.save(asset);
         });
     }
+
+    @Override
+    public Flux<Asset> findAllBySecurityRefId(final Long securityRefId) {
+        return assetRepository.findAllBySecurityRefId(securityRefId);
+    }
 }
