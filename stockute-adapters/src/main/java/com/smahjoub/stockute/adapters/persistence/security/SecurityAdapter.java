@@ -42,4 +42,9 @@ public class SecurityAdapter implements SecurityPort {
     public Mono<Security> findById(Long securityId) {
         return securityRepository.findById(securityId);
     }
+
+    @Override
+    public Flux<Security> findAll() {
+        return securityRepository.findAll();
+    }
 }

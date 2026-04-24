@@ -6,11 +6,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.r2dbc.repository.config.EnableR2dbcRepositories;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @EnableR2dbcRepositories(basePackages = "com.smahjoub.stockute.adapters.persistence")
 @ComponentScan(basePackages = "com.smahjoub.stockute")
 @EnableConfigurationProperties(AlphaVantageProperties.class)
 @SpringBootApplication
+@EnableScheduling
 public class StockuteApplication {
 
     public static void main(String[] args) {

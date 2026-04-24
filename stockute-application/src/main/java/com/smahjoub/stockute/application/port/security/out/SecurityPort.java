@@ -10,4 +10,5 @@ public interface SecurityPort {
     Mono<Security> save(Security security);
     Flux<Security> saveAll(Flux<Security> securities);
     Mono<Security> findById(Long securityId);
+    Flux<Security> findAll();
 }

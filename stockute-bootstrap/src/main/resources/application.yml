@@ -34,6 +34,10 @@ springbootwebfluxjjwt:
   jjwt:
     expiration: '148800'
     secret: 123qs345678HGGTFFHUJNGTsecret123345678HGGTFFHUJNGTqsdqsdZEza
+stockute:
+  batch:
+    dividend-import:
+      cron: "0 0 2 * * *"
 alphavantage:
   # base-url:
   # api-key: demo

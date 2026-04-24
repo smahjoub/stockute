@@ -9,6 +9,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -43,5 +47,42 @@ class SecurityDividendAdapterTest {
                 .verifyComplete();
 
         verify(repository).findById(999L);
+    }
+
+    @Test
+    void save_ShouldDelegateToRepository() {
+        SecurityDividend dividend = new SecurityDividend();
+        dividend.setId(5L);
+
+        when(repository.save(dividend)).thenReturn(Mono.just(dividend));
+
+        StepVerifier.create(adapter.save(dividend))
+                .expectNext(dividend)
+                .verifyComplete();
+
+        verify(repository).save(dividend);
+    }
+
+    @Test
+    void findByBusinessKey_ShouldDelegateToRepository() {
+        Long securityRefId = 100L;
+        LocalDateTime exDate = LocalDateTime.of(2026, 5, 8, 0, 0);
+        LocalDateTime paymentDate = LocalDateTime.of(2026, 6, 10, 0, 0);
+        BigDecimal amount = new BigDecimal("1.69");
+
+        SecurityDividend dividend = new SecurityDividend();
+        dividend.setId(77L);
+
+        when(repository.findBySecurityRefIdAndExDateAndPaymentDateAndDividendPerShare(
+                securityRefId, exDate, paymentDate, amount
+        )).thenReturn(Mono.just(dividend));
+
+        StepVerifier.create(adapter.findByBusinessKey(securityRefId, exDate, paymentDate, amount))
+                .expectNext(dividend)
+                .verifyComplete();
+
+        verify(repository).findBySecurityRefIdAndExDateAndPaymentDateAndDividendPerShare(
+                securityRefId, exDate, paymentDate, amount
+        );
     }
 }

@@ -100,4 +100,47 @@ class SecurityAdapterTest {
 
         verify(repository).saveAll(input);
     }
+
+
+    @Test
+    void findById_shouldReturnSecurity() {
+        Security s = new Security();
+        s.setId(42L);
+
+        when(repository.findById(42L)).thenReturn(Mono.just(s));
+
+        StepVerifier.create(adapter.findById(42L))
+                .expectNext(s)
+                .verifyComplete();
+
+        verify(repository).findById(42L);
+    }
+
+    @Test
+    void findById_whenNotFound_shouldReturnEmpty() {
+        when(repository.findById(999L)).thenReturn(Mono.empty());
+
+        StepVerifier.create(adapter.findById(999L))
+                .verifyComplete();
+
+        verify(repository).findById(999L);
+    }
+
+
+    @Test
+    void findAll_shouldReturnAllSecurities() {
+        Security s1 = new Security();
+        s1.setId(1L);
+
+        Security s2 = new Security();
+        s2.setId(2L);
+
+        when(repository.findAll()).thenReturn(Flux.just(s1, s2));
+
+        StepVerifier.create(adapter.findAll())
+                .expectNext(s1)
+                .expectNext(s2);
+
+    }
+
 }

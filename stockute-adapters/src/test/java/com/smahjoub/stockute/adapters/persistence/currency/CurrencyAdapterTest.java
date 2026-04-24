@@ -11,6 +11,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.when;
 
 class CurrencyAdapterTest {
@@ -50,6 +51,20 @@ class CurrencyAdapterTest {
         StepVerifier.create(adapter.findAll())
                 .expectNext(currency1)
                 .expectNext(currency2)
+                .verifyComplete();
+    }
+
+    @Test
+    void testFindByCode() {
+        Currency currency = new Currency(1L, "US Dollar", "$", "USD");
+        when(currencyRepository.findByCode(anyString())).thenReturn(Mono.just(currency));
+
+        StepVerifier.create(adapter.findByCode("USD"))
+                .expectNextMatches(result ->
+                        result.getId().equals(1L) &&
+                                result.getName().equals("US Dollar") &&
+                                result.getSymbol().equals("$") &&
+                                result.getCode().equals("USD"))
                 .verifyComplete();
     }
 }
