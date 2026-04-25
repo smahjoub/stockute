@@ -26,4 +26,9 @@ public class PortfolioDividendEntitlementAdapter implements PortfolioDividendEnt
     ) {
         return repository.saveAll(entitlements);
     }
+
+    @Override
+    public Flux<PortfolioDividendEntitlement> getEntitlementsForPortfolioAsset(final Long portfolioRefId, final Long assetRefId) {
+        return repository.findByPortfolioRefIdAndAssetRefId(portfolioRefId, assetRefId);
+    }
 }

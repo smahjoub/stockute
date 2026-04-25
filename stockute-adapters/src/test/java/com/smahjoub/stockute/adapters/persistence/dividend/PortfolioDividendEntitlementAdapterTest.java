@@ -57,4 +57,23 @@ class PortfolioDividendEntitlementAdapterTest {
 
         verify(repository).saveAll(any(Publisher.class));
     }
+
+    @Test
+    void getEntitlementsForPortfolioAsset_delegatesToRepository() {
+        PortfolioDividendEntitlement e1 = new PortfolioDividendEntitlement();
+        e1.setId(1L);
+
+        PortfolioDividendEntitlement e2 = new PortfolioDividendEntitlement();
+        e2.setId(2L);
+
+        when(repository.findByPortfolioRefIdAndAssetRefId(1L, 100L))
+                .thenReturn(Flux.just(e1, e2));
+
+        StepVerifier.create(adapter.getEntitlementsForPortfolioAsset(1L, 100L))
+                .expectNext(e1, e2)
+                .verifyComplete();
+
+        verify(repository).findByPortfolioRefIdAndAssetRefId(1L, 100L);
+    }
+
 }

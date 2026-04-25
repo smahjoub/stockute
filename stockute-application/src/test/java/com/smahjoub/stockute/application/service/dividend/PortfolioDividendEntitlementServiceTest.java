@@ -120,4 +120,46 @@ class PortfolioDividendEntitlementServiceTest {
         verify(securityDividendPort).findById(999L);
         verifyNoInteractions(portfolioDividendEntitlementPort, assetPort, transactionPort);
     }
+
+    @Test
+    void getDividendEntitlementsForPortfolio_returnsEntitlements() {
+        PortfolioDividendEntitlement e1 = new PortfolioDividendEntitlement();
+        e1.setId(1L);
+
+        PortfolioDividendEntitlement e2 = new PortfolioDividendEntitlement();
+        e2.setId(2L);
+
+        when(portfolioDividendEntitlementPort.getEntitlementsForPortfolioAsset(1L, 100L))
+                .thenReturn(Flux.just(e1, e2));
+
+        Flux<PortfolioDividendEntitlement> result =
+                service.getDividendEntitlementsForPortfolio(1L, 100L);
+
+        StepVerifier.create(result)
+                .expectNext(e1, e2)
+                .verifyComplete();
+
+        verify(portfolioDividendEntitlementPort)
+                .getEntitlementsForPortfolioAsset(1L, 100L);
+    }
+
+    @Test
+    void getDividendEntitlementsForPortfolio_empty_returnsEmpty() {
+        when(portfolioDividendEntitlementPort.getEntitlementsForPortfolioAsset(1L, 100L))
+                .thenReturn(Flux.empty());
+
+        StepVerifier.create(service.getDividendEntitlementsForPortfolio(1L, 100L))
+                .verifyComplete();
+    }
+
+    @Test
+    void getDividendEntitlementsForPortfolio_error_propagatesError() {
+        when(portfolioDividendEntitlementPort.getEntitlementsForPortfolioAsset(1L, 100L))
+                .thenReturn(Flux.error(new RuntimeException("DB error")));
+
+        StepVerifier.create(service.getDividendEntitlementsForPortfolio(1L, 100L))
+                .expectError(RuntimeException.class)
+                .verify();
+    }
+
 }

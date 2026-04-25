@@ -1,6 +1,7 @@
 package com.smahjoub.stockute.application.service.dividend;
 
 import com.smahjoub.stockute.application.port.asset.out.AssetPort;
+import com.smahjoub.stockute.application.port.dividend.in.PortfolioDividendEntitlementUseCase;
 import com.smahjoub.stockute.application.port.dividend.out.PortfolioDividendEntitlementPort;
 import com.smahjoub.stockute.application.port.dividend.out.SecurityDividendPort;
 import com.smahjoub.stockute.application.port.transaction.out.TransactionPort;
@@ -10,6 +11,7 @@ import com.smahjoub.stockute.domain.model.SecurityDividend;
 import com.smahjoub.stockute.domain.model.Transaction;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
@@ -17,17 +19,23 @@ import java.time.LocalDateTime;
 
 @Service
 @AllArgsConstructor
-public class PortfolioDividendEntitlementService {
+public class PortfolioDividendEntitlementService implements PortfolioDividendEntitlementUseCase {
 
     private final SecurityDividendPort securityDividendPort;
     private final PortfolioDividendEntitlementPort portfolioDividendEntitlementPort;
     private final AssetPort assetPort;
     private final TransactionPort transactionPort;
 
+    @Override
     public Mono<Void> rebuildEntitlementsForSecurityDividend(final Long securityDividendId) {
         return securityDividendPort.findById(securityDividendId)
                 .flatMap(this::rebuildEntitlementsForDividend)
                 .then();
+    }
+
+    @Override
+    public Flux<PortfolioDividendEntitlement> getDividendEntitlementsForPortfolio(final Long portfolioRefId, final Long assetRefId) {
+        return portfolioDividendEntitlementPort.getEntitlementsForPortfolioAsset(portfolioRefId, assetRefId);
     }
 
     private Mono<Void> rebuildEntitlementsForDividend(final SecurityDividend dividend) {
@@ -82,4 +90,6 @@ public class PortfolioDividendEntitlementService {
         entitlement.setVersion(0L);
         return entitlement;
     }
+
+
 }

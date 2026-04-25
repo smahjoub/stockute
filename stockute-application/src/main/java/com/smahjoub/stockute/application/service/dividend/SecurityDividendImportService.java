@@ -1,5 +1,6 @@
 package com.smahjoub.stockute.application.service.dividend;
 
+import com.smahjoub.stockute.application.port.dividend.in.PortfolioDividendEntitlementUseCase;
 import com.smahjoub.stockute.application.port.dividend.out.DividendMarketDataPort;
 import com.smahjoub.stockute.application.port.security.out.SecurityPort;
 import com.smahjoub.stockute.domain.model.Security;
@@ -17,7 +18,7 @@ public class SecurityDividendImportService {
     private final SecurityPort securityPort;
     private final DividendMarketDataPort dividendMarketDataPort;
     private final SecurityDividendUpsertService securityDividendUpsertService;
-    private final PortfolioDividendEntitlementService portfolioDividendEntitlementService;
+    private final PortfolioDividendEntitlementUseCase portfolioDividendEntitlementService;
 
     public Mono<Void> importDividendHistoryForAllSecurities() {
         return securityPort.findAll()
