@@ -2,6 +2,8 @@ package com.smahjoub.stockute.adapters.external.alphavantage.mapper;
 
 import com.smahjoub.stockute.adapters.external.alphavantage.dto.AlphaVantageDividendItem;
 import com.smahjoub.stockute.application.port.dividend.out.DividendHistoryItem;
+import io.vavr.control.Try;
+import lombok.extern.slf4j.Slf4j;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -23,6 +25,7 @@ public interface AlphaVantageDividendMapper {
         if (date == null || date.isBlank()) {
             return null;
         }
-        return LocalDate.parse(date).atStartOfDay();
+        return Try.of(() -> LocalDate.parse(date).atStartOfDay())
+                .getOrNull();
     }
 }
