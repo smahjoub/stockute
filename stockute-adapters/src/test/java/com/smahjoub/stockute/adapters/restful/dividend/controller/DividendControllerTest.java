@@ -1,8 +1,12 @@
 package com.smahjoub.stockute.adapters.restful.dividend.controller;
 
 import com.smahjoub.stockute.adapters.restful.dividend.dto.DividendEntitlementDto;
+import com.smahjoub.stockute.adapters.restful.dividend.dto.PortfolioDividendStatsDto;
 import com.smahjoub.stockute.adapters.restful.dividend.mapper.DividendEntitlementMapper;
+import com.smahjoub.stockute.adapters.restful.dividend.mapper.PortfolioDividendStatsMapper;
 import com.smahjoub.stockute.application.port.dividend.in.PortfolioDividendEntitlementUseCase;
+import com.smahjoub.stockute.application.port.dividend.in.PortfolioDividendStatsUseCase;
+import com.smahjoub.stockute.application.port.dividend.in.response.PortfolioDividendStats;
 import com.smahjoub.stockute.domain.model.PortfolioDividendEntitlement;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,6 +15,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.math.BigDecimal;
@@ -29,6 +34,11 @@ class DividendControllerTest {
     @Mock
     private PortfolioDividendEntitlementUseCase portfolioDividendEntitlementUseCase;
 
+    @Mock
+    private PortfolioDividendStatsMapper portfolioDividendStatsMapper;
+
+    @Mock
+    private PortfolioDividendStatsUseCase portfolioDividendStatsUseCase;
     @InjectMocks
     private DividendController dividendController;
 
@@ -36,6 +46,8 @@ class DividendControllerTest {
     private PortfolioDividendEntitlement entitlement2;
     private DividendEntitlementDto dto1;
     private DividendEntitlementDto dto2;
+    private PortfolioDividendStats statsResponse;
+    private PortfolioDividendStatsDto statsDto;
 
     @BeforeEach
     void setUp() {
@@ -80,6 +92,19 @@ class DividendControllerTest {
                 entitlement2.getPaymentDate(),
                 "PENDING"
         );
+
+        statsResponse = new PortfolioDividendStats(
+                BigDecimal.valueOf(25),
+                BigDecimal.valueOf(240),
+                BigDecimal.ZERO,
+                BigDecimal.valueOf(244.80)
+        );
+
+        statsDto = new PortfolioDividendStatsDto();
+        statsDto.setPastMonthAccumulated(BigDecimal.valueOf(25));
+        statsDto.setPastYearAccumulated(BigDecimal.valueOf(240));
+        statsDto.setIncomingDividend(BigDecimal.ZERO);
+        statsDto.setNextYearForecast(BigDecimal.valueOf(244.80));
     }
 
     @Test
@@ -121,5 +146,43 @@ class DividendControllerTest {
                 )
                 .expectError(RuntimeException.class)
                 .verify();
+    }
+
+    @Test
+    void getDividendStatsForPortfolio_Success_ReturnsDto() {
+        when(portfolioDividendStatsUseCase.getDividendStatsForPortfolio(1L))
+                .thenReturn(Mono.just(statsResponse));
+        when(portfolioDividendStatsMapper.toDto(statsResponse))
+                .thenReturn(statsDto);
+
+        StepVerifier.create(dividendController.getDividendStatsForPortfolio(1L))
+                .expectNext(statsDto)
+                .verifyComplete();
+
+        verify(portfolioDividendStatsUseCase).getDividendStatsForPortfolio(1L);
+        verify(portfolioDividendStatsMapper).toDto(statsResponse);
+    }
+
+    @Test
+    void getDividendStatsForPortfolio_ServiceError_ReturnsError() {
+        when(portfolioDividendStatsUseCase.getDividendStatsForPortfolio(1L))
+                .thenReturn(Mono.error(new RuntimeException("Service error")));
+
+        StepVerifier.create(dividendController.getDividendStatsForPortfolio(1L))
+                .expectError(RuntimeException.class)
+                .verify();
+
+        verify(portfolioDividendStatsUseCase).getDividendStatsForPortfolio(1L);
+    }
+
+    @Test
+    void getDividendStatsForPortfolio_Empty_ReturnsEmpty() {
+        when(portfolioDividendStatsUseCase.getDividendStatsForPortfolio(1L))
+                .thenReturn(Mono.empty());
+
+        StepVerifier.create(dividendController.getDividendStatsForPortfolio(1L))
+                .verifyComplete();
+
+        verify(portfolioDividendStatsUseCase).getDividendStatsForPortfolio(1L);
     }
 }

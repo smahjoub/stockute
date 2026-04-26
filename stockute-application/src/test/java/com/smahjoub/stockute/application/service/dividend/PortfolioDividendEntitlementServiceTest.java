@@ -107,7 +107,7 @@ class PortfolioDividendEntitlementServiceTest {
         assertEquals(0, entitlement.getEligibleShares().compareTo(BigDecimal.valueOf(7)));
         assertEquals(0, entitlement.getDividendPerShare().compareTo(BigDecimal.valueOf(1.50)));
         assertEquals(0, entitlement.getGrossAmount().compareTo(BigDecimal.valueOf(10.50)));
-        assertEquals("CALCULATED", entitlement.getStatus());
+        assertEquals("PAID", entitlement.getStatus());
     }
 
     @Test

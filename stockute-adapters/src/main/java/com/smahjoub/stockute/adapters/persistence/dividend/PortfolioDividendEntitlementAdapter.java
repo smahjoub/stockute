@@ -9,6 +9,8 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalDateTime;
+
 @Component
 @AllArgsConstructor(access = AccessLevel.PUBLIC)
 public class PortfolioDividendEntitlementAdapter implements PortfolioDividendEntitlementPort {
@@ -30,5 +32,14 @@ public class PortfolioDividendEntitlementAdapter implements PortfolioDividendEnt
     @Override
     public Flux<PortfolioDividendEntitlement> getEntitlementsForPortfolioAsset(final Long portfolioRefId, final Long assetRefId) {
         return repository.findByPortfolioRefIdAndAssetRefId(portfolioRefId, assetRefId);
+    }
+
+    @Override
+    public Flux<PortfolioDividendEntitlement> findAllByPortfolioRefIdAndPaymentDateBetween(
+            final Long portfolioRefId,
+            final LocalDateTime startDate,
+            final LocalDateTime endDate
+    ) {
+        return repository.findAllByPortfolioRefIdAndPaymentDateBetween(portfolioRefId, startDate, endDate);
     }
 }
