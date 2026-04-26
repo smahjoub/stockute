@@ -84,7 +84,7 @@ public class PortfolioDividendEntitlementService implements PortfolioDividendEnt
         entitlement.setCurrencyRefId(dividend.getCurrencyRefId());
         entitlement.setExDate(dividend.getExDate());
         entitlement.setPaymentDate(dividend.getPaymentDate());
-        entitlement.setStatus("CALCULATED");
+        entitlement.setStatus("PAID");
         entitlement.setCreatedDate(LocalDateTime.now());
         entitlement.setLastModifiedDate(LocalDateTime.now());
         entitlement.setVersion(0L);
