@@ -4,6 +4,8 @@ import com.smahjoub.stockute.adapters.external.earningsapi.dto.EarningsApiDivide
 import com.smahjoub.stockute.application.port.dividend.out.SecurityDividendCalendarItem;
 import org.springframework.stereotype.Component;
 
+import io.vavr.control.Try;
+
 import java.time.LocalDate;
 
 @Component
@@ -13,9 +15,16 @@ public class EarningsApiDividendMapper {
         return new SecurityDividendCalendarItem(
                 response.getName(),
                 response.getSymbol(),
-                response.getDividendExDate() != null ? LocalDate.parse(response.getDividendExDate()) : null,
-                response.getPaymentDate() != null ? LocalDate.parse(response.getPaymentDate()) : null,
+                parseDate(response.getDividendExDate()),
+                parseDate(response.getPaymentDate()),
                 response.getDividendRate()
         );
+    }
+
+    private LocalDate parseDate(String date) {
+        if (date == null || date.isBlank()) {
+            return null;
+        }
+        return Try.of(() -> LocalDate.parse(date)).getOrNull();
     }
 }
