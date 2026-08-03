@@ -1,6 +1,9 @@
 alphavantage:
   base-url: http://localhost:9000
   api-key: demo
+earningsapi:
+  base-url: http://localhost:9000
+  api-key: demo
 stockute:
   batch:
     dividend-import:
