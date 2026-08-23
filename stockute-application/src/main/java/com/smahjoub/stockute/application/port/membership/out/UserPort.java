@@ -8,4 +8,6 @@ public interface UserPort {
     Mono<User> findByEmail(String email);
 
     Mono<User> findByUsername(String username);
+
+    Mono<User> save(User user);
 }
