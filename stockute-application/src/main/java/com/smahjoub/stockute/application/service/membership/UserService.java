@@ -10,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
-
 import java.util.HashSet;
 
 @Service
@@ -43,4 +42,29 @@ public class UserService implements UserUseCase {
         return userPort.findByUsername(userName);
     }
 
+    @Override
+    public Mono<User> updateProfile(String username, String email, String firstName, String lastName) {
+        return userPort.findByUsername(username)
+                .flatMap(user -> {
+                    user.setEmail(email);
+                    user.setFirstName(firstName);
+                    user.setLastName(lastName);
+                    return userPort.save(user);
+                });
+    }
+
+    @Override
+    public Mono<Void> changePassword(String username, String currentPassword, String newPassword) {
+        return userPort.findByUsername(username)
+                .flatMap(user -> {
+                    if (!passwordEncoder.encode(currentPassword).equals(user.getPassword())) {
+                        return Mono.error(new IllegalArgumentException("Current password is incorrect"));
+                    }
+                    user.setPassword(passwordEncoder.encode(newPassword));
+                    return userPort.save(user);
+                })
+                .then();
+    }
+
 }
+

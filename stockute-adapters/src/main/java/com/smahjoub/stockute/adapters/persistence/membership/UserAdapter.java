@@ -21,4 +21,9 @@ public class UserAdapter implements UserPort {
         return userRepository.findUserByUsername(username)
                 .switchIfEmpty(Mono.error(new IllegalArgumentException("User not found for username: " + username)));
     }
+
+    @Override
+    public Mono<User> save(final User user) {
+        return userRepository.save(user);
+    }
 }
