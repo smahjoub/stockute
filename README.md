@@ -58,6 +58,13 @@ stockute/
 
 ## Getting Started
 
+> [!IMPORTANT]
+> The application requires a running **PostgreSQL** database. Always start the infrastructure first:
+> ```bash
+> docker-compose up -d
+> ```
+> Without it, Liquibase migrations and R2DBC connections will fail on startup.
+
 ### 1. Start Infrastructure
 
 Launch PostgreSQL, pgAdmin, and Redis via Docker Compose:
