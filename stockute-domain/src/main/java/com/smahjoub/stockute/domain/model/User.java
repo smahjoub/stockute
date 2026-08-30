@@ -1,7 +1,6 @@
 package com.smahjoub.stockute.domain.model;
 
 
-
 import lombok.*;
 import org.springframework.data.annotation.*;
 import org.springframework.data.relational.core.mapping.Column;
@@ -11,7 +10,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 
-import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -42,23 +40,11 @@ public class User extends Entity implements UserDetails  {
     @Column("last_name")
     private String lastName;
 
-    @CreatedDate
-    @Column("created_date")
-    private LocalDateTime createdDate;
-
-    @LastModifiedDate
-    @Column("last_modified_date")
-    private LocalDateTime lastModifiedDate;
-
-    @Version
-    @Column("version")
-    private Long version;
-
     @Transient
     private Set<Role> roles = new HashSet<>();
 
 
-    public User(String username, String password, Boolean enabled, Set<Role> roles, Long version) {
+    public User(String username, String password, Boolean enabled, Set<Role> roles) {
         this.username = username;
         this.password = password;
         this.enabled = enabled;

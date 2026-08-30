@@ -46,4 +46,18 @@ public interface UserPreferencePort {
      * @return a mono completing when the deletion is done
      */
     Mono<Void> deleteByUserIdAndKey(Long userId, String key);
+
+    /**
+     * Inserts a new preference or updates an existing one atomically
+     * using a database-level upsert ({@code INSERT … ON CONFLICT DO UPDATE}).
+     *
+     * <p>This avoids the race condition inherent in a find-then-save pattern
+     * when two concurrent requests target the same {@code (userId, key)} pair.</p>
+     *
+     * @param userId           the user identifier
+     * @param key              the preference key
+     * @param serializedValue  the JSON-serialized preference value
+     * @return a mono completing when the upsert is done
+     */
+    Mono<Void> upsert(Long userId, String key, String serializedValue);
 }

@@ -44,10 +44,17 @@ class UserPreferenceServiceTest {
         String key = "theme";
         Map<String, String> value = Map.of("color", "dark");
 
-        when(userPreferencePort.findByUserIdAndKey(userId, key))
+        UserPreference savedPreference = UserPreference.builder()
+                .id(1L)
+                .userId(userId)
+                .preferenceKey(key)
+                .preferenceValue("{\"color\":\"dark\"}")
+                .build();
+
+        when(userPreferencePort.upsert(any(Long.class), any(String.class), any(String.class)))
                 .thenReturn(Mono.empty());
-        when(userPreferencePort.save(any(UserPreference.class)))
-                .thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
+        when(userPreferencePort.findByUserIdAndKey(userId, key))
+                .thenReturn(Mono.just(savedPreference));
 
         // When & Then
         StepVerifier.create(userPreferenceService.savePreference(userId, key, value))

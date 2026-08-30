@@ -41,4 +41,9 @@ public class UserPreferenceAdapter implements UserPreferencePort {
         return userPreferenceRepository.findByUserIdAndKey(userId, key)
                 .flatMap(preference -> userPreferenceRepository.deleteById(preference.getId()));
     }
+
+    @Override
+    public Mono<Void> upsert(Long userId, String key, String serializedValue) {
+        return userPreferenceRepository.upsert(userId, key, serializedValue).then();
+    }
 }

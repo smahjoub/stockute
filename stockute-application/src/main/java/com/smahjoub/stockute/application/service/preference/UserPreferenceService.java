@@ -64,22 +64,11 @@ public class UserPreferenceService implements UserPreferenceUseCase {
                     preferenceProperties.getAllowedKeys()));
         }
 
-        // Check if a preference with this key already exists for the user
-        return userPreferencePort.findByUserIdAndKey(userId, key)
-                .flatMap(existing -> {
-                    // Update existing preference
-                    existing.setPreferenceValue(JsonUtils.toJson(value));
-                    return userPreferencePort.save(existing);
-                })
-                .switchIfEmpty(Mono.defer(() -> {
-                    // Create new preference
-                    UserPreference newPreference = UserPreference.builder()
-                            .userId(userId)
-                            .preferenceKey(key)
-                            .preferenceValue(JsonUtils.toJson(value))
-                            .build();
-                    return userPreferencePort.save(newPreference);
-                }))
+        String serializedValue = JsonUtils.toJson(value);
+
+        // Use atomic upsert to avoid race conditions between concurrent requests
+        return userPreferencePort.upsert(userId, key, serializedValue)
+                .then(userPreferencePort.findByUserIdAndKey(userId, key))
                 .map(saved -> JsonUtils.fromJson(saved.getPreferenceValue()));
     }
 }

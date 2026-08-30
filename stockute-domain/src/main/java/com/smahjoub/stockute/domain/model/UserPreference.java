@@ -2,13 +2,8 @@ package com.smahjoub.stockute.domain.model;
 
 import lombok.*;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.annotation.Version;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
-
-import java.time.LocalDateTime;
 
 /**
  * Domain entity representing a user preference stored as a key-value pair.
@@ -21,6 +16,9 @@ import java.time.LocalDateTime;
  * <p>This design keeps the domain model free of serialization concerns.
  * The persistence layer (R2DBC) maps the column as a plain {@code String}
  * to/from a PostgreSQL {@code TEXT} column — no driver-specific types needed.</p>
+ *
+ * <p>Auditing fields ({@code createdDate}, {@code lastModifiedDate}, {@code version})
+ * are inherited from the {@link Entity} base class.</p>
  */
 @Table("user_preferences")
 @Getter
@@ -48,16 +46,4 @@ public class UserPreference extends Entity {
      */
     @Column("preference_value")
     private String preferenceValue;
-
-    @CreatedDate
-    @Column("created_date")
-    private LocalDateTime createdDate;
-
-    @LastModifiedDate
-    @Column("last_modified_date")
-    private LocalDateTime lastModifiedDate;
-
-    @Version
-    @Column("version")
-    private Long version;
 }

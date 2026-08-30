@@ -158,4 +158,15 @@ class UserPreferenceAdapterTest {
 
         verify(userPreferenceRepository).findByUserIdAndKey(99L, "non-existent");
     }
+
+    @Test
+    void upsert_shouldDelegateToRepository() {
+        when(userPreferenceRepository.upsert(99L, "theme", "{\"color\":\"dark\"}"))
+                .thenReturn(Mono.just(true));
+
+        StepVerifier.create(adapter.upsert(99L, "theme", "{\"color\":\"dark\"}"))
+                .verifyComplete();
+
+        verify(userPreferenceRepository).upsert(99L, "theme", "{\"color\":\"dark\"}");
+    }
 }
