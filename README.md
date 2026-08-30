@@ -94,10 +94,8 @@ mvn clean install
 
 #### Default profile (uses `application.yml` — `dev` profile active by default)
 
-From the **bootstrap** module:
-
 ```bash
-mvn -pl stockute-bootstrap spring-boot:run
+mvn spring-boot:run
 ```
 
 > **Note:** The base `application.yml` sets `spring.profiles.active: dev`, so the dev profile is loaded automatically.
@@ -105,19 +103,19 @@ mvn -pl stockute-bootstrap spring-boot:run
 #### Explicitly activate the `dev` profile
 
 ```bash
-mvn -pl stockute-bootstrap spring-boot:run -Dspring-boot.run.profiles=dev
+mvn spring-boot:run -Dspring-boot.run.profiles=dev
 ```
 
 #### Run without any profile (default configuration only)
 
 ```bash
-mvn -pl stockute-bootstrap spring-boot:run -Dspring-boot.run.profiles=none
+mvn spring-boot:run -Dspring-boot.run.profiles=none
 ```
 
 #### Run with the `test` profile (in-memory H2 database)
 
 ```bash
-mvn -pl stockute-bootstrap spring-boot:run -Dspring-boot.run.profiles=test
+mvn spring-boot:run -Dspring-boot.run.profiles=test
 ```
 
 #### Run from a packaged JAR
