@@ -986,3 +986,57 @@ databaseChangeLog:
             tableName: portfolio_dividend_entitlements
             columnNames: portfolio_ref_id, security_dividend_ref_id
             constraintName: uk_portfolio_dividend_entitlements_portfolio_dividend
+  - changeSet:
+      id: 20
+      author: smahjoub
+      changes:
+        - createTable:
+            tableName: user_preferences
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: preference_key
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: preference_value
+                  type: TEXT
+                  constraints:
+                    nullable: true
+              - column:
+                  name: created_date
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: true
+              - column:
+                  name: last_modified_date
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: true
+              - column:
+                  name: version
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+        - createIndex:
+            tableName: user_preferences
+            indexName: idx_user_preferences_user_id
+            columns:
+              - column:
+                  name: user_id
+        - addUniqueConstraint:
+            tableName: user_preferences
+            columnNames: user_id, preference_key
+            constraintName: uk_user_preferences_user_key

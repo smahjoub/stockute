@@ -38,6 +38,10 @@ stockute:
   batch:
     dividend-import:
       cron: "0 0 2 * * *"
+  user-preferences:
+    allowed-keys:
+      - theme
+      - email-notification
 alphavantage:
   # base-url:
   # api-key: demo

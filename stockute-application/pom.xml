@@ -23,6 +23,12 @@
             <version>${project.version}</version>
         </dependency>
 
+        <!-- Jackson for JSON serialization/deserialization of generic preference values -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+
         <!-- test -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
