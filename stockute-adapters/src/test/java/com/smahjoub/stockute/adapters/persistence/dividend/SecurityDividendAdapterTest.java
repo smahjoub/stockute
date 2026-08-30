@@ -73,7 +73,7 @@ class SecurityDividendAdapterTest {
         SecurityDividend dividend = new SecurityDividend();
         dividend.setId(77L);
 
-        when(repository.findBySecurityRefIdAndExDateAndPaymentDateAndDividendPerShare(
+        when(repository.findByBusinessKey(
                 securityRefId, exDate, paymentDate, amount
         )).thenReturn(Mono.just(dividend));
 
@@ -81,7 +81,7 @@ class SecurityDividendAdapterTest {
                 .expectNext(dividend)
                 .verifyComplete();
 
-        verify(repository).findBySecurityRefIdAndExDateAndPaymentDateAndDividendPerShare(
+        verify(repository).findByBusinessKey(
                 securityRefId, exDate, paymentDate, amount
         );
     }

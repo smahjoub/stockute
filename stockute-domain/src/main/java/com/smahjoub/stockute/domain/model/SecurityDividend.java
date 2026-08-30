@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Version;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
@@ -60,12 +61,7 @@ public class SecurityDividend extends Entity {
     @Column("notes")
     private String notes;
 
-    @Column("created_date")
-    private LocalDateTime createdDate;
-
-    @Column("last_modified_date")
-    private LocalDateTime lastModifiedDate;
-
+    @Version
     @Column("version")
     private Long version;
 }

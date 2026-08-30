@@ -33,7 +33,7 @@ public class SecurityDividendAdapter implements SecurityDividendPort {
             final LocalDateTime paymentDate,
             final BigDecimal dividendPerShare
     ) {
-        return repository.findBySecurityRefIdAndExDateAndPaymentDateAndDividendPerShare(
+        return repository.findByBusinessKey(
                 securityRefId,
                 exDate,
                 paymentDate,

@@ -1040,3 +1040,18 @@ databaseChangeLog:
             tableName: user_preferences
             columnNames: user_id, preference_key
             constraintName: uk_user_preferences_user_key
+  - changeSet:
+      id: 21
+      author: smahjoub
+      changes:
+        - update:
+            tableName: security_dividends
+            columns:
+              - column:
+                  name: version
+                  valueNumeric: 0
+            where: version IS NULL
+        - addDefaultValue:
+            tableName: security_dividends
+            columnName: version
+            defaultValueNumeric: 0
