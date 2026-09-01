@@ -17,9 +17,9 @@ import java.util.HashSet;
 @Slf4j
 public class UserService implements UserUseCase {
 
-     private final UserPort userPort;
-     private final UserInRolePort userInRolePort;
-     private final PBKDF2Encoder passwordEncoder;
+    private final UserPort userPort;
+    private final UserInRolePort userInRolePort;
+    private final PBKDF2Encoder passwordEncoder;
 
     @Override
     public Mono<User> authenticate(String email, String password) {
@@ -32,7 +32,7 @@ public class UserService implements UserUseCase {
                 })
                 .filter(user -> passwordEncoder.encode(password).equals(user.getPassword()))
                 .onErrorResume(error -> {
-                    log.error("Authentication failed for %{} with the following details {}", email, error.getMessage());
+                    log.error("Authentication failed for {} with the following details {}", email, error.getMessage());
                     return Mono.empty();
                 });
     }
@@ -68,23 +68,14 @@ public class UserService implements UserUseCase {
 
     @Override
     public Mono<User> createUser(User user) {
-        log.info("UserService.createUser: encoding password and enabling user: {}", user.getUsername());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setEnabled(true);
         return userPort.save(user)
-                .doOnSuccess(savedUser -> log.info("UserService.createUser: user saved with id={}", savedUser.getId()))
                 .flatMap(savedUser -> userInRolePort.findRoleByName("USER")
-                        .doOnSuccess(role -> log.info("UserService.createUser: found USER role with id={}", role.getId()))
                         .flatMap(role -> userInRolePort.assignRoleToUser(role.getId(), savedUser.getId())
-                                .doOnSuccess(v -> log.info("UserService.createUser: assigned role USER to userId={}", savedUser.getId()))
-                                .doOnError(error -> log.error("UserService.createUser: failed to assign role: {}", error.getMessage(), error))
                                 .then(userInRolePort.findRolesByUserName(savedUser.getUsername()))
-                                .doOnSuccess(roles -> {
-                                    savedUser.setRoles(new HashSet<>(roles));
-                                    log.info("UserService.createUser: fetched {} roles for userId={}", roles.size(), savedUser.getId());
-                                })
-                                .thenReturn(savedUser)))
-                .doOnError(error -> log.error("UserService.createUser: failed to save user: {}", error.getMessage(), error));
+                                .doOnSuccess(roles -> savedUser.setRoles(new HashSet<>(roles)))
+                                .thenReturn(savedUser)));
     }
 
 }
