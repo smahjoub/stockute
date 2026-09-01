@@ -12,15 +12,11 @@ public interface RoleRepository extends ReactiveCrudRepository<Role, Long> {
 
     Mono<Role> findByName(String name);
 
-    @Query(value = "INSERT INTO users_in_roles(role_id, user_id) VALUES(:roleId, :userId)")
-    Mono<Void> assignRoleToUser(long roleId, long userId);
-
-
-    @Query("SELECT roles.role_id, roles.name, roles.version, roles.created_date, roles.last_modified_date FROM users " +
+    @Query("SELECT DISTINCT roles.role_id, roles.name, roles.description, roles.version, roles.created_date, roles.last_modified_date FROM users " +
             "INNER JOIN users_in_roles " +
             "ON users_in_roles.user_id = users.user_id " +
-            "AND users.email = :email " +
+            "AND users.username = :username " +
             "INNER JOIN roles " +
             "ON roles.role_id = users_in_roles.role_id ")
-    Flux<Role> getUserRoles(String email);
+    Flux<Role> getUserRoles(String username);
 }

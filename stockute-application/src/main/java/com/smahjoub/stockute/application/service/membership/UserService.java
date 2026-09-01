@@ -24,7 +24,7 @@ public class UserService implements UserUseCase {
     @Override
     public Mono<User> authenticate(String email, String password) {
         return userPort.findByEmail(email)
-                .zipWith(this.userInRolePort.findRolesByUserName(email))
+                .zipWith(userPort.findByEmail(email).flatMap(user -> this.userInRolePort.findRolesByUserName(user.getUsername())))
                 .map(result -> {
                     final User user = result.getT1();
                     user.setRoles(new HashSet<>(result.getT2()));
@@ -64,6 +64,27 @@ public class UserService implements UserUseCase {
                     return userPort.save(user);
                 })
                 .then();
+    }
+
+    @Override
+    public Mono<User> createUser(User user) {
+        log.info("UserService.createUser: encoding password and enabling user: {}", user.getUsername());
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setEnabled(true);
+        return userPort.save(user)
+                .doOnSuccess(savedUser -> log.info("UserService.createUser: user saved with id={}", savedUser.getId()))
+                .flatMap(savedUser -> userInRolePort.findRoleByName("USER")
+                        .doOnSuccess(role -> log.info("UserService.createUser: found USER role with id={}", role.getId()))
+                        .flatMap(role -> userInRolePort.assignRoleToUser(role.getId(), savedUser.getId())
+                                .doOnSuccess(v -> log.info("UserService.createUser: assigned role USER to userId={}", savedUser.getId()))
+                                .doOnError(error -> log.error("UserService.createUser: failed to assign role: {}", error.getMessage(), error))
+                                .then(userInRolePort.findRolesByUserName(savedUser.getUsername()))
+                                .doOnSuccess(roles -> {
+                                    savedUser.setRoles(new HashSet<>(roles));
+                                    log.info("UserService.createUser: fetched {} roles for userId={}", roles.size(), savedUser.getId());
+                                })
+                                .thenReturn(savedUser)))
+                .doOnError(error -> log.error("UserService.createUser: failed to save user: {}", error.getMessage(), error));
     }
 
 }

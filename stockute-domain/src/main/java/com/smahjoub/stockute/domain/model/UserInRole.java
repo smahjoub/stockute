@@ -1,9 +1,13 @@
 package com.smahjoub.stockute.domain.model;
 
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
+
+import java.time.LocalDateTime;
 
 @Table("users_in_roles")
 @Getter
@@ -27,4 +31,15 @@ public class UserInRole {
 
     @Column("role_id")
     private Long roleId;
+
+    @CreatedDate
+    @Column("created_date")
+    private LocalDateTime createdDate;
+
+    @LastModifiedDate
+    @Column("last_modified_date")
+    private LocalDateTime lastModifiedDate;
+
+    @Column("version")
+    private Long version;
 }

@@ -8,4 +8,8 @@ import java.util.List;
 public interface UserInRolePort {
 
     Mono<List<Role>> findRolesByUserName(String userName);
+
+    Mono<Role> findRoleByName(String name);
+
+    Mono<Void> assignRoleToUser(long roleId, long userId);
 }

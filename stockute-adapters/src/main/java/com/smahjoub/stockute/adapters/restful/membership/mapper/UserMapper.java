@@ -10,7 +10,8 @@ public interface UserMapper {
 
     default UserDTO toUserDTO(User user) {
      return new UserDTO(user.getId(), user.getUsername(), user.getEmail(), user.getFirstName(),
-                        user.getLastName(), user.isAccountNonLocked(), user.getRoles().stream().map(Role::getName).toList());
+                        user.getLastName(), user.isAccountNonLocked(), user.getRoles().stream().map(Role::getName).toList(),
+                        user.getCreatedDate(), user.getLastModifiedDate(), user.getVersion());
     }
 
 }

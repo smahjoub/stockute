@@ -18,6 +18,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.anyString;
@@ -54,7 +55,8 @@ class ProfileControllerTest {
         user.setFirstName("Admin");
         user.setLastName("User");
 
-        UserDTO expectedDTO = new UserDTO(1L, "admin", "admin@example.com", "Admin", "User", false, List.of("USER", "ADMIN"));
+        LocalDateTime now = LocalDateTime.now();
+        UserDTO expectedDTO = new UserDTO(1L, "admin", "admin@example.com", "Admin", "User", false, List.of("USER", "ADMIN"), now, now, 1L);
 
         when(userUseCase.getUserByUsername(anyString()))
                 .thenReturn(Mono.just(user));
@@ -82,7 +84,8 @@ class ProfileControllerTest {
         updatedUser.setFirstName("John");
         updatedUser.setLastName("Doe");
 
-        UserDTO expectedDTO = new UserDTO(1L, "admin", "new@example.com", "John", "Doe", false, List.of("USER", "ADMIN"));
+        LocalDateTime now = LocalDateTime.now();
+        UserDTO expectedDTO = new UserDTO(1L, "admin", "new@example.com", "John", "Doe", false, List.of("USER", "ADMIN"), now, now, 1L);
 
         when(userUseCase.updateProfile(anyString(), anyString(), anyString(), anyString()))
                 .thenReturn(Mono.just(updatedUser));

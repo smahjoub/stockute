@@ -32,6 +32,7 @@ class UserServiceTest {
     @Test
     void authenticate_whenPasswordMatches_returnsUser() {
         User user = new User();
+        user.setUsername("testuser");
         user.setEmail("test@mail.com");
         user.setPassword("encoded");
 
@@ -41,7 +42,7 @@ class UserServiceTest {
         when(userPort.findByEmail("test@mail.com"))
                 .thenReturn(Mono.just(user));
 
-        when(userInRolePort.findRolesByUserName("test@mail.com"))
+        when(userInRolePort.findRolesByUserName("testuser"))
                 .thenReturn(Mono.just(List.of(r)));
 
         when(encoder.encode("raw")).thenReturn("encoded");
@@ -53,14 +54,15 @@ class UserServiceTest {
                 )
                 .verifyComplete();
 
-        verify(userPort).findByEmail("test@mail.com");
-        verify(userInRolePort).findRolesByUserName("test@mail.com");
+        verify(userPort, times(2)).findByEmail("test@mail.com");
+        verify(userInRolePort).findRolesByUserName("testuser");
         verify(encoder).encode("raw");
     }
 
     @Test
     void authenticate_whenPasswordDoesNotMatch_returnsEmpty() {
         User user = new User();
+        user.setUsername("testuser");
         user.setEmail("test@mail.com");
         user.setPassword("encoded");
 
@@ -70,7 +72,7 @@ class UserServiceTest {
         when(userPort.findByEmail("test@mail.com"))
                 .thenReturn(Mono.just(user));
 
-        when(userInRolePort.findRolesByUserName("test@mail.com"))
+        when(userInRolePort.findRolesByUserName("testuser"))
                 .thenReturn(Mono.just(List.of(r)));
 
         when(encoder.encode("wrong")).thenReturn("not-matching");
@@ -78,8 +80,8 @@ class UserServiceTest {
         StepVerifier.create(service.authenticate("test@mail.com", "wrong"))
                 .verifyComplete();
 
-        verify(userPort).findByEmail("test@mail.com");
-        verify(userInRolePort).findRolesByUserName("test@mail.com");
+        verify(userPort, times(2)).findByEmail("test@mail.com");
+        verify(userInRolePort).findRolesByUserName("testuser");
         verify(encoder).encode("wrong");
     }
 
@@ -97,5 +99,44 @@ class UserServiceTest {
                 .verifyComplete();
 
         verify(userPort).findByUsername("john");
+    }
+
+    @Test
+    void createUser_encodesPassword_savesAndAssignsRole() {
+        User user = new User();
+        user.setUsername("john");
+        user.setPassword("raw");
+        user.setEmail("john@example.com");
+
+        Role userRole = new Role();
+        userRole.setId(200L);
+        userRole.setName("USER");
+
+        User savedUser = new User();
+        savedUser.setId(1L);
+        savedUser.setUsername("john");
+        savedUser.setPassword("encoded");
+        savedUser.setEmail("john@example.com");
+
+        when(encoder.encode("raw")).thenReturn("encoded");
+        when(userPort.save(any(User.class))).thenReturn(Mono.just(savedUser));
+        when(userInRolePort.findRoleByName("USER")).thenReturn(Mono.just(userRole));
+        when(userInRolePort.assignRoleToUser(200L, 1L)).thenReturn(Mono.empty());
+        when(userInRolePort.findRolesByUserName("john")).thenReturn(Mono.just(List.of(userRole)));
+
+        StepVerifier.create(service.createUser(user))
+                .expectNextMatches(u -> 
+                    u.getId().equals(1L) && 
+                    u.getUsername().equals("john") &&
+                    u.getRoles().size() == 1 &&
+                    u.getRoles().iterator().next().getName().equals("USER")
+                )
+                .verifyComplete();
+
+        verify(encoder).encode("raw");
+        verify(userPort).save(user);
+        verify(userInRolePort).findRoleByName("USER");
+        verify(userInRolePort).assignRoleToUser(200L, 1L);
+        verify(userInRolePort).findRolesByUserName("john");
     }
 }

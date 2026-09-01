@@ -1069,3 +1069,14 @@ databaseChangeLog:
                   type: VARCHAR(2)
                   constraints:
                     nullable: true
+  - changeSet:
+      id: 23
+      author: smahjoub
+      changes:
+        - sql:
+            sql: |
+              SELECT setval('users_in_roles_id_seq', COALESCE((SELECT MAX(id) FROM users_in_roles), 0) + 1, false);
+        - addUniqueConstraint:
+            tableName: users_in_roles
+            columnNames: user_id, role_id
+            constraintName: uk_users_in_roles_user_role

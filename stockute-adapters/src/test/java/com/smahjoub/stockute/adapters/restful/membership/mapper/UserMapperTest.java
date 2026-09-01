@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 import static org.assertj.core.api.Assertions.assertThat;
 
-
+import java.time.LocalDateTime;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -28,6 +28,10 @@ class UserMapperTest {
         user.setEnabled(true);
         Set<Role> roles = Set.of(new Role(1L, "USER", ""), new Role(2L, "ADMIN", ""));
         user.setRoles(roles);
+        LocalDateTime now = LocalDateTime.now();
+        user.setCreatedDate(now);
+        user.setLastModifiedDate(now);
+        user.setVersion(1L);
 
         UserDTO result = userMapper.toUserDTO(user);
 
@@ -40,5 +44,8 @@ class UserMapperTest {
         assertEquals(user.isAccountNonLocked(), result.active()); // Assuming isAccountNonLocked maps to active
 
         assertThat(result.roles()).contains("USER", "ADMIN");
+        assertEquals(user.getCreatedDate(), result.createdDate());
+        assertEquals(user.getLastModifiedDate(), result.lastModifiedDate());
+        assertEquals(user.getVersion(), result.version());
     }
 }
