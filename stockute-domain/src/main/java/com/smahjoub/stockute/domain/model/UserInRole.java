@@ -4,6 +4,7 @@ import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.annotation.Version;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
@@ -40,6 +41,7 @@ public class UserInRole {
     @Column("last_modified_date")
     private LocalDateTime lastModifiedDate;
 
+    @Version
     @Column("version")
     private Long version;
 }

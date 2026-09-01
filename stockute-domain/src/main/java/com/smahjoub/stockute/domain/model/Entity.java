@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.annotation.Version;
 import org.springframework.data.relational.core.mapping.Column;
 
 import java.time.LocalDateTime;
@@ -20,6 +21,7 @@ public abstract class Entity {
     @Column("last_modified_date")
     private LocalDateTime lastModifiedDate;
 
+    @Version
     @Column("version")
     private Long version;
 
