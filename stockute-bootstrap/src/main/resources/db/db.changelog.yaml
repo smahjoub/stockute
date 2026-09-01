@@ -681,6 +681,8 @@ databaseChangeLog:
   - changeSet:
       id: 11
       author: smahjoub
+      validCheckSum:
+        - 9:392b1725e4da75196795fce0cb1ea0dc
       changes:
         - sqlFile:
             encoding: utf-8
@@ -1055,3 +1057,15 @@ databaseChangeLog:
             tableName: security_dividends
             columnName: version
             defaultValueNumeric: 0
+  - changeSet:
+      id: 22
+      author: smahjoub
+      changes:
+        - addColumn:
+            tableName: users
+            columns:
+              - column:
+                  name: tax_residency_country
+                  type: VARCHAR(2)
+                  constraints:
+                    nullable: true

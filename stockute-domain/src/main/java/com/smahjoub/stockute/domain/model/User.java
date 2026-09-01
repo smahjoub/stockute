@@ -40,6 +40,9 @@ public class User extends Entity implements UserDetails  {
     @Column("last_name")
     private String lastName;
 
+    @Column("tax_residency_country")
+    private String taxResidencyCountry;
+
     @Transient
     private Set<Role> roles = new HashSet<>();
 
